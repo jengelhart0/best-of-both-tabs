@@ -1,20 +1,19 @@
 'use strict';
-// interacts with popup.html
+// browser actions
 
 const windowInfo = {
 	focused: false,
-	url: 'http://tripadvisor.com',
-
+	url: 'http://tripadvisor.com'
 }
 
 function openNewTab() {
-	console.log('new tab');
+	// create new window with info and callback
 	chrome.windows.create(windowInfo, windowCallback);
 }
 
 function windowCallback(window) {
 	console.log(window);
-	console.log('calledback')
+	// access window here
 }
 
-document.getElementById('newTabButton').onclick = openNewTab;
+chrome.browserAction.onClicked.addListener(openNewTab);
