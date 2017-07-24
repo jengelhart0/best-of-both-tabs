@@ -1,6 +1,21 @@
 'use strict';
 // browser actions
 
+let tabPairs = {}
+
+function setOldTabId(oldTabId) {
+	return function (newWindow) {
+        tabPairs[oldTabId] = newWindow.tabs[0].id
+        alert("tab created");
+        alert(oldTabId)
+		alert(newWindow.tabs[0].id)
+    }
+}
+
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+    alert("updated url")
+})
+
 function openNewTab() {
 	chrome.windows.getCurrent((window) => {
 		// get the screen dimensions
@@ -21,30 +36,12 @@ function openNewTab() {
 			url: 'http://tripadvisor.com'
 		}
 		chrome.windows.update(window.id, leftWindowInfo)
-		chrome.windows.create(rightWindowInfo);
-	});
-	
-	var requestFilter = {
-		urls: [
-			"<all_urls>"
-		]
-	};
 
-	chrome.webRequest.onBeforeSendHeaders.addListener(function(details) {
-		var headers = details.requestHeaders;
-		if( !localStorage['user-agent'] ) {
-			return;
-		}
-		for(var i = 0, l = headers.length; i < l; ++i) {
-			if( headers[i].name == 'User-Agent' ) {
-				break;
-			}
-		}
-		if(i < headers.length) {
-			headers[i].value = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36';
-		}
-		return {requestHeaders: headers};
-	}, requestFilter, ['requestHeaders','blocking']);
+        // create new window with info and callback
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabArray) {
+            chrome.windows.create(rightWindowInfo, setOldTabId(tabArray[0].id));
+        })
+	});
 }
 
 chrome.browserAction.onClicked.addListener(openNewTab);

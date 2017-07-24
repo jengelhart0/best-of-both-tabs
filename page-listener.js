@@ -1,3 +1,5 @@
+"use strict";
+
 (function () {
-    var port = chrome.runtime.connect({name: ""})
-})()
+    const port = chrome.runtime.connect({name: "main-page-events"});
+})();

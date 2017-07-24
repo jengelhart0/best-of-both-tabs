@@ -10,6 +10,7 @@ const windowInfo = {
 function openNewTab() {
 	console.log('new tab');
 	chrome.windows.create(windowInfo, windowCallback);
+	chrome.runtime.sendMessage({newWindow: true}) //TODO bwehner include tab ID
 }
 
 function windowCallback(window) {
