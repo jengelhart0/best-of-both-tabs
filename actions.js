@@ -1,19 +1,38 @@
 'use strict';
 // browser actions
 
+// Map from desktop tab id's to mobile tab id's
 let tabPairs = {}
 
 function setOldTabId(oldTabId) {
 	return function (newWindow) {
         tabPairs[oldTabId] = newWindow.tabs[0].id
-        // alert("tab created");
-        // alert(oldTabId)
-		// alert(newWindow.tabs[0].id)
     }
 }
 
+function setDesktopTabId(desktopTabId) {
+	return (newWindow) => {
+        tabPairs[desktopTabId] = newWindow.tabs[0].id;
+    }
+}
+
+function getCorrespondingTab(tabId) {
+	let correspondingTab = tabPairs[tabId] || false;
+
+	Object.keys(tabPairs).forEach((key) => {
+		if (tabId === tabPairs[key]) {
+			correspondingTab = parseInt(key, 10);
+		}
+	})
+
+	return correspondingTab;
+}
+
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-    // alert("updated url")
+	let correspondingTab = getCorrespondingTab(tabId)
+	if (changeInfo.url && correspondingTab) {
+		chrome.tabs.update(correspondingTab, {url: changeInfo.url});
+	}
 })
 
 function openNewTab() {
@@ -39,7 +58,7 @@ function openNewTab() {
 
         // create new window with info and callback
         chrome.tabs.query({active: true, currentWindow: true}, function(tabArray) {
-            chrome.windows.create(rightWindowInfo, setOldTabId(tabArray[0].id));
+            chrome.windows.create(rightWindowInfo, setDesktopTabId(tabArray[0].id));
         })
 	});
 
@@ -50,8 +69,10 @@ function openNewTab() {
 		]
 	};
 
+	// Listener to redirect to mobile pages
 	chrome.webRequest.onBeforeSendHeaders.addListener((details) => {
 		var headers = details.requestHeaders;
+		// check if the tabId is a value in the map (a mobile page)
 		var found = false;
 		for (const key in tabPairs) {
 			if (tabPairs[key] == details.tabId) {
