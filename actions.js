@@ -1,19 +1,28 @@
 'use strict';
 // browser actions
 
-const windowInfo = {
-	focused: false,
-	url: 'http://tripadvisor.com'
-}
-
 function openNewTab() {
-	// create new window with info and callback
-	chrome.windows.create(windowInfo, windowCallback);
-}
-
-function windowCallback(window) {
-	console.log(window);
-	// access window here
+	chrome.windows.getCurrent((window) => {
+		// get the screen dimensions
+		// resize the current window
+		// create the new window
+		const leftWindowInfo = {
+			top: 0,
+			left: 0,
+			width: screen.width / 2,
+			height: screen.height
+		}
+		const rightWindowInfo = {
+			top: 0,
+			left: screen.width / 2,
+			width: screen.width / 2,
+			height: screen.height,
+			focused: false,
+			url: 'http://tripadvisor.com'
+		}
+		chrome.windows.update(window.id, leftWindowInfo)
+		chrome.windows.create(rightWindowInfo);
+	});
 }
 
 chrome.browserAction.onClicked.addListener(openNewTab);
