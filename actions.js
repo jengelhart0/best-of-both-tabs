@@ -1,6 +1,21 @@
 'use strict';
 // browser actions
 
+let tabPairs = {}
+
+function setOldTabId(oldTabId) {
+	return function (newWindow) {
+        tabPairs[oldTabId] = newWindow.tabs[0].id
+        alert("tab created");
+        alert(oldTabId)
+		alert(newWindow.tabs[0].id)
+    }
+}
+
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+    alert("updated url")
+})
+
 function openNewTab() {
 	chrome.windows.getCurrent((window) => {
 		// get the screen dimensions
@@ -21,8 +36,13 @@ function openNewTab() {
 			url: 'http://tripadvisor.com'
 		}
 		chrome.windows.update(window.id, leftWindowInfo)
-		chrome.windows.create(rightWindowInfo);
+
+        // create new window with info and callback
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabArray) {
+            chrome.windows.create(rightWindowInfo, setOldTabId(tabArray[0].id));
+        })
 	});
+
 }
 
 chrome.browserAction.onClicked.addListener(openNewTab);

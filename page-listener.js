@@ -1,9 +1,5 @@
-(function () {
-    var port = chrome.runtime.connect({name: "main-page-events"});
+"use strict";
 
-    chrome.tabs.onUpdated.addListener(
-        function(tabId, changeInfo, tab) {
-            debugger;
-        }
-    )
+(function () {
+    const port = chrome.runtime.connect({name: "main-page-events"});
 })();
