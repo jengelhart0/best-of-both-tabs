@@ -22,7 +22,6 @@ function getCorrespondingTab(tabId) {
         });
     }
 
-
     return correspondingTab;
 }
 
