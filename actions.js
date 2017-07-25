@@ -83,8 +83,8 @@ chrome.tabs.onRemoved.addListener((removedTabId) => {
 
 // Listen to a change in which tab is focused in a window and update the focus of the tab in the corresponding window
 chrome.tabs.onActivated.addListener((activeInfo) => {
+    let correspondingTab = getCorrespondingTab(activeInfo.tabId);
 	if (activeInfo.windowId === desktopWindowId || activeInfo.windowId === mobileWindowId) {
-		let correspondingTab = getCorrespondingTab(activeInfo.tabId);
 		chrome.tabs.update(correspondingTab, {selected: true});
 	}
 });
@@ -122,9 +122,12 @@ function createMirroredWindow() {
 	};
 
 	// Listener to handle messages from content script
-	chrome.runtime.onMessage.addListener((message, sender, response) => {
-		if (message.selectedText) {
-			console.log("received message: " + message.selectedText + " from " + sender.tab.id);
+	chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+		let correspondingTabId = getCorrespondingTab(sender.tab.id);
+		if(correspondingTabId) {
+			chrome.tabs.sendMessage(correspondingTabId, message, null, sendResponse);
+		} else {
+			console.log("Error relaying message: No corresponding tab to receive messsage");
 		}
 	});
 
