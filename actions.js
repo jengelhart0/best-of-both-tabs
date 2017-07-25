@@ -124,6 +124,13 @@ function CreateMirroredWindow() {
 		]
 	};
 
+	// Listener to handle messages from content script
+	chrome.runtime.onMessage.addListener((message, sender, response) => {
+		if (message.selectedText) {
+			console.log("received message: " + message.selectedText + " from " + sender.tab.id);
+		}
+	});
+
 	// Listener to redirect to mobile pages
 	chrome.webRequest.onBeforeSendHeaders.addListener((details) => {
 		var headers = details.requestHeaders;
