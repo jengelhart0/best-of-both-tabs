@@ -70,9 +70,12 @@ function openNewTab() {
 	};
 
 	// Listener to handle messages from content script
-	chrome.runtime.onMessage.addListener((message, sender, response) => {
-		if (message.selectedText) {
-			console.log("received message: " + message.selectedText + " from " + sender.tab.id);
+	chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+		let correspondingTabId = getCorrespondingTab(sender.tab.id);
+		if(correspondingTabId) {
+			chrome.tabs.sendMessage(correspondingTabId, message, null, sendResponse);
+		} else {
+			console.log("Error relaying message: No corresponding tab to receive messsage");
 		}
 	});
 
