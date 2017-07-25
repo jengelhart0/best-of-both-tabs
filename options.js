@@ -38,14 +38,23 @@ let buildDeviceOptions = () => {
 
 let changeDevice = (event) => {
 	if (event.target.value) {
-		localStorage['device'] = event.target.value
-		localStorage['ua'] = userAgents[event.target.value]['ua']
-		localStorage['width'] = userAgents[event.target.value]['width']
-		localStorage['height'] = userAgents[event.target.value]['height']
+		storeDevice(event.target.value)
 	}
 }
 
+// put device info on local storage
+let storeDevice = (device) => {
+	if (!userAgents[device]) {
+		console.error('device does not exist');
+	}
+	localStorage['device'] = device
+	localStorage['ua'] = userAgents[device]['ua']
+	localStorage['width'] = userAgents[device]['width']
+	localStorage['height'] = userAgents[device]['height']
+}
 
+// init stuff
 let deviceSelect = document.getElementById('device-select');
 deviceSelect.addEventListener("change", changeDevice);
 buildDeviceOptions();
+storeDevice('iPhone 5');
