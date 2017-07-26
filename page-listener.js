@@ -38,11 +38,15 @@
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
       // scroll in response to scroll message
+      if (message.scrollPercentage) {
+      }
       if (message.scrollPercentage && !scrollSendInProgress) {
         if (message.scrollPercentage !== getCurrentScrollPercentage()) {
           const newScroll = message.scrollPercentage * document.body.scrollHeight;
           window.scrollTo(document.documentElement.scrollLeft, newScroll);
         }
+      }
+      else if (message.selectedText) {
       }
       sendResponse();
     });

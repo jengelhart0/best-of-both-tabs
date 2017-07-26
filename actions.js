@@ -49,19 +49,19 @@ function configureWindowSync(desktopWindow, oldTabId) {
 }
 
 function mirrorDesktopWindow(desktopWindow) {
-    const desktopWindowInfo = {
-        top: 0,
-        left: 0,
-        width: screen.width / 2,
-        height: screen.height
-    };
-    const mobileWindowInfo = {
-        top: 0,
-        left: screen.width / 2,
-        width: localStorage['width'] ? parseInt(localStorage['width'], 10) : screen.width / 2,
-        height: localStorage['height'] ? parseInt(localStorage['height'], 10) : screen.height,
-        focused: false,
-    };
+  const desktopWindowInfo = {
+    top: 0,
+    left: 0,
+    width: screen.width * 2 / 3,
+    height: screen.height
+  };
+  const mobileWindowInfo = {
+    top: 0,
+    left: screen.width * 2 / 3,
+    width: localStorage['width'] ? parseInt(localStorage['width'], 10) : screen.width / 2,
+    height: localStorage['height'] ? parseInt(localStorage['height'], 10) : screen.height,
+    focused: false,
+  };
 
     // resize desktop window
     chrome.windows.update(desktopWindow.id, desktopWindowInfo);
@@ -164,8 +164,15 @@ function createMirroredWindow() {
 	};
 
 	// Listener to handle messages from content script
+	// super important method!
 	chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 		let correspondingTabId = getCorrespondingTab(sender.tab.id);
+
+		// stub out scrolling messages when scrolling is locked
+		let scrollLock = chrome.extension.getBackgroundPage().getScrollLock();
+		if (message.scrollPercentage && scrollLock !== 'on') {
+			return
+		}
 		if(correspondingTabId) {
 			chrome.tabs.sendMessage(correspondingTabId, message, null, sendResponse);
 		} else {
@@ -197,5 +204,6 @@ function createMirroredWindow() {
 			return {requestHeaders: headers};
 	}, requestFilter, ['requestHeaders','blocking']);
 }
+
 
 chrome.browserAction.onClicked.addListener(createMirroredWindow);
