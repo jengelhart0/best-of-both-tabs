@@ -49,38 +49,21 @@ function configureWindowSync(desktopWindow, oldTabId) {
 }
 
 function mirrorDesktopWindow(desktopWindow) {
-<<<<<<< HEAD
     const desktopWindowInfo = {
         top: 0,
         left: 0,
-        width: screen.width / 2,
+        width: screen.width * 2 / 3,
         height: screen.height
     };
 
     let device = chrome.extension.getBackgroundPage().getDevice();
     const mobileWindowInfo = {
         top: 0,
-        left: screen.width / 2,
+		left: screen.width * 2 / 3,
         width: device.width !== 0 ? device.width : screen.width / 2,
         height: device.height !== 0 ? device.height : screen.height,
         focused: false,
     };
-=======
-  const desktopWindowInfo = {
-    top: 0,
-    left: 0,
-    width: screen.width * 2 / 3,
-    height: screen.height
-  };
-  const mobileWindowInfo = {
-    top: 0,
-    left: screen.width * 2 / 3,
-    width: localStorage['width'] ? parseInt(localStorage['width'], 10) : screen.width / 2,
-    height: localStorage['height'] ? parseInt(localStorage['height'], 10) : screen.height,
-    focused: false,
-  };
->>>>>>> 4f5668825822d0b4f6157bd4cc76b868ab75c19c
-
     // resize desktop window
     chrome.windows.update(desktopWindow.id, desktopWindowInfo);
 
