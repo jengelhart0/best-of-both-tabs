@@ -147,8 +147,15 @@ function createMirroredWindow() {
 	};
 
 	// Listener to handle messages from content script
+	// super important method!
 	chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 		let correspondingTabId = getCorrespondingTab(sender.tab.id);
+
+		// stub out scrolling messages when scrolling is locked
+		let scrollLock = chrome.extension.getBackgroundPage().getScrollLock();
+		if (message.scrollPercentage && scrollLock !== 'on') {
+			return
+		}
 		if(correspondingTabId) {
 			chrome.tabs.sendMessage(correspondingTabId, message, null, sendResponse);
 		} else {
@@ -180,5 +187,6 @@ function createMirroredWindow() {
 			return {requestHeaders: headers};
 	}, requestFilter, ['requestHeaders','blocking']);
 }
+
 
 chrome.browserAction.onClicked.addListener(createMirroredWindow);

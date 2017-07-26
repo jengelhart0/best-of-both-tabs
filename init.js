@@ -27,7 +27,7 @@ var storeGlueWindows = (set) => {
 
 // "on" or "off"
 var getScrollLock = () => {
-	return localStore['scrollLock'];
+	return localStorage['scrollLock'];
 };
 
 // "new" or "same"
@@ -45,7 +45,7 @@ let init = () => {
 	// defaults
 	storeDevice('iPhone 5');
 	storeScrollLock('on');
-	storeStartSession('new');
+	storeStartSession('same');
 	storeGlueWindows('on');
 };
 init();
