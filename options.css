@@ -1,0 +1,118 @@
+html, body {
+	padding: 0;
+	margin: 0;
+}
+body {
+	font-family: Arial, sans-serif;
+	font-size: 13px;
+}
+h1 {
+	-webkit-user-select: none;
+	border-bottom: 1px solid #EEE;
+	color: #53637D;
+	font-size: 190%;
+	font-weight: normal;
+	margin: 0;
+	padding-bottom: 0;
+	padding-top: 11px;
+	-webkit-padding-end: 24px;
+	text-shadow: white 0 1px 2px;
+}
+h2 {
+	color: #53637D;
+	font-size: 120%;
+	padding: 0;
+	margin: 2em 0 0.3em 0;
+	font-weight: normal;
+}
+.content h1 {
+	margin-bottom: 1.8em;
+}
+p {
+	margin: 0;
+	padding: 0;
+	padding-bottom: 0.7em;
+}
+#navbar-container {
+	-webkit-border-end: 1px solid #c6c9ce;
+	background: -webkit-linear-gradient(rgba(234, 238, 243, 0.2), #EAEEF3), -webkit-linear-gradient(left, #EAEEF3, #EAEEF3 97%, #D3D7DB);
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	top: 0;
+	padding: 0;
+	width: 216px;
+	text-align: right;
+}
+#navbar-container img.extension-icon {
+	margin: 10px;
+}
+#nav {
+	list-style: none;
+	width: 100%;
+	padding: 0;
+}
+#nav li {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+}
+#nav a {
+	border-bottom: 1px solid transparent;
+	border-top: 1px solid transparent;
+	color: #426DC9;
+	cursor: pointer;
+	display: block;
+	font-size: 105%;
+	outline: none;
+	padding: 7px 0;
+	text-align: end;
+	text-shadow: white 0 1px 1px;
+	-webkit-padding-end: 24px;
+	text-decoration: none;
+}
+#nav a.selected {
+	-webkit-box-shadow: 0px 1px 0px #f7f7f7;
+	background: -webkit-linear-gradient(left, #BBCEE9, #BBCEE9 97%, #AABEDC);
+	border-bottom: 1px solid #8FAAD9;
+	border-top: 1px solid #8FAAD9;
+	color: black;
+	text-shadow: #BBCEE9 0 1px 1px;
+}
+#wrapper {
+	padding-left: 245px;
+	width: 600px;
+	padding-bottom: 5em;
+}
+fieldset {
+	position: relative;
+	border: none;
+	border-bottom: 1px solid #EEE;
+	padding: 2em 0 1.5em 180px;
+}
+fieldset p {
+	font-style: italic;
+	margin-bottom: 0;
+}
+fieldset table {
+	margin-top: 0;
+	margin-bottom: 1em;
+}
+.space-row {
+	padding-top: 0.3em;
+}
+legend {
+	position: absolute;
+	left: 0;
+	top: 26px;
+	font-weight: bold;
+	cursor: default;
+}
+label {
+	cursor: default;
+	font-size: 13px;
+}
+.hidden {
+	display: none;
+}

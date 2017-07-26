@@ -1,9 +1,82 @@
 <!DOCTYPE html>
 <html>
 	<title>settings!</title>
+	<link rel="stylesheet" type="text/css" href="options.css"
 <body>
 	<h1>settings page</h1>
-	<select id="device-select"></select>
+	<form id="settings">
+		<fieldset>
+			<legend>Change Device:</legend>
+			<select id="device-select"></select>
+		</fieldset>
+		<fieldset>
+			<legend>Add a new device:</legend>
+			<table>
+			<tbody>
+				<tr>
+					<td><input id="name-input" type="text" placeholder="Device Name"></td>
+				</tr>
+				<tr>
+					<td><input id="user-agent-input" type="text" placeholder="User Agent"></td>
+				</tr>
+				<tr>
+					<td><input id="width-input" type="number" placeholder="width (px)"></td>
+				</tr>
+				<tr>
+					<td><input id="height-input" type="number" placeholder="height (px)"></td>
+				</tr>
+				<tr>
+					<td><button id="add-btn">Add</button></td>
+				</tr>
+			</tbody>
+			</table>
+		</fieldset>
+		<fieldset>
+			<legend>Scroll lock:</legend>
+			<table>
+			<tbody>
+				<tr>
+					<td><input id="scoll-lock-on" type="radio" name="scroll" value="on"></td>
+					<td><label for="scroll-lock-on">On</label></td>
+				</tr>
+				<tr>
+					<td><input id="scoll-lock-off" type="radio" name="scroll" value="off"></td>
+					<td><label for="scroll-lock-off">Off</label></td>
+				</tr>
+			</tbody>
+			</table>
+		</fieldset>
+		<fieldset>
+			<legend>Start Session in:</legend>
+			<table>
+			<tbody>
+				<tr>
+					<td><input id="session-same" type="radio" name="session" value="same"></td>
+					<td><label for="session-same">Same Window</label></td>
+				</tr>
+				<tr>
+					<td><input id="session-new" type="radio" name="session" value="new"></td>
+					<td><label for="session-new">New Window</label></td>
+				</tr>
+			</tbody>
+			</table>
+		</fieldset>
+		<fieldset>
+			<legend>Glue windows together:</legend>
+			<table>
+			<tbody>
+				<tr>
+					<td><input id="glue-on" type="radio" name="glue" value="on"></td>
+					<td><label for="glue-on">On</label></td>
+				</tr>
+				<tr>
+					<td><input id="glue-off" type="radio" name="glue" value="off"></td>
+					<td><label for="glue-off">Off</label></td>
+				</tr>
+			</tbody>
+			</table>
+		</fieldset>
+	</form>
 	<script src="options.js"></script>
 </body>
 </html>
