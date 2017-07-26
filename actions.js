@@ -200,7 +200,7 @@ function createMirroredWindow() {
 				}
 			}
 			if(i < headers.length) {
-				let device = chrome.extension.getBackgroundPage.getDevice();
+				let device = chrome.extension.getBackgroundPage().getDevice();
 				headers[i].value = device.ua;
 			}
 			return {requestHeaders: headers};
