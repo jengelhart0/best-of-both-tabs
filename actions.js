@@ -29,13 +29,41 @@ function getCorrespondingTab(tabId) {
     return correspondingTab;
 }
 
-function mirrorDesktopWindow(desktopWindow, oldTabId) {
+function configureWindowSync(desktopWindow, oldTabId) {
 	return function createAndMirrorMobileWindow(mobileWindow) {
         tabPairs[oldTabId] = mobileWindow.tabs[0].id;
 
 		desktopWindowId = desktopWindow.id;
 		mobileWindowId = mobileWindow.id;
     }
+}
+
+function mirrorDesktopWindow(desktopWindow) {
+    const desktopWindowInfo = {
+        top: 0,
+        left: 0,
+        width: screen.width / 2,
+        height: screen.height
+    };
+    const mobileWindowInfo = {
+        top: 0,
+        left: screen.width / 2,
+        width: localStorage['width'] ? parseInt(localStorage['width'], 10) : screen.width / 2,
+        height: localStorage['height'] ? parseInt(localStorage['height'], 10) : screen.height,
+        focused: false,
+    };
+
+    // resize desktop window
+    chrome.windows.update(desktopWindow.id, desktopWindowInfo);
+
+    // Mark the initilizer window as the active window
+    focusedWindowId = desktopWindow.id;
+
+    // create mobile window, add to map
+    chrome.tabs.query({active: true, windowId: desktopWindow.id}, (tabArray) => {
+        mobileWindowInfo.url = tabArray[0].url;
+        chrome.windows.create(mobileWindowInfo, configureWindowSync(desktopWindow, tabArray[0].id));
+    });
 }
 
 // Listen to URL change in any tab and update the corresponding tab with the proper url
@@ -96,35 +124,20 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
 // Keep track of when the focused window changes
 chrome.windows.onFocusChanged.addListener((newFocusedWindowId) => {
 	focusedWindowId = newFocusedWindowId;
-})
+});
 
 function createMirroredWindow() {
 	chrome.windows.getCurrent((window) => {
-		const desktopWindowInfo = {
-			top: 0,
-			left: 0,
-			width: screen.width / 2,
-			height: screen.height
-		};
-		const mobileWindowInfo = {
-			top: 0,
-			left: screen.width / 2,
-			width: localStorage['width'] ? parseInt(localStorage['width'], 10) : screen.width / 2,
-			height: localStorage['height'] ? parseInt(localStorage['height'], 10) : screen.height,
-			focused: false,
-		};
-
-		// resize desktop window
-		chrome.windows.update(window.id, desktopWindowInfo);
-
-		// Mark the initilizer window as the active window
-        focusedWindowId = window.id;
-
-        // create mobile window, add to map
-        chrome.tabs.query({active: true, currentWindow: true}, (tabArray) => {
-        	mobileWindowInfo.url = tabArray[0].url;
-            chrome.windows.create(mobileWindowInfo, mirrorDesktopWindow(window, tabArray[0].id));
-        });
+		let startSession = chrome.extension.getBackgroundPage().getStartSession();
+		if (startSession === "new") {
+			chrome.tabs.query({active: true, windowId: window.id}, (tabArray) => {
+                chrome.windows.create({ url: tabArray[0].url}, (newWindow) => {
+                    mirrorDesktopWindow(newWindow);
+				})
+			})
+		} else {
+			mirrorDesktopWindow(window);
+		}
 	});
 
 	var requestFilter = {
