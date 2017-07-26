@@ -103,12 +103,12 @@ function createMirroredWindow() {
 		const desktopWindowInfo = {
 			top: 0,
 			left: 0,
-			width: screen.width / 2,
+			width: screen.width * 2 / 3,
 			height: screen.height
 		};
 		const mobileWindowInfo = {
 			top: 0,
-			left: screen.width / 2,
+			left: screen.width * 2 / 3,
 			width: localStorage['width'] ? parseInt(localStorage['width'], 10) : screen.width / 2,
 			height: localStorage['height'] ? parseInt(localStorage['height'], 10) : screen.height,
 			focused: false,
