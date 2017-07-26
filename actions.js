@@ -2,18 +2,28 @@
 // browser actions
 
 // Map from desktop tab id's to mobile tab id's
-let tabPairs = {};
+let tabPairs
 
 // ID's of desktop (left) and mobile (right) windows
 let desktopWindowId;
 let mobileWindowId;
 
 // Marks whether a new tab is currently being created, prevents "infinite loops" of tab creation
-let newTabBeingCreated = false;
+let newTabBeingCreated
 
 // Keep track of current active window for terrible, hacky reasons (so we can know if tab navigation was user initiated or programmatic)
 // Abandon hope all ye who enter here
 let focusedWindowId;
+
+function initTracking() {
+	tabPairs = {};
+	desktopWindowId = void(0);
+	mobileWindowId = void(0);
+	newTabBeingCreated = false;
+	focusedWindowId = void(0);
+}
+
+initTracking();
 
 function getCorrespondingTab(tabId) {
     let correspondingTab = tabPairs[tabId] || false;
@@ -39,6 +49,7 @@ function configureWindowSync(desktopWindow, oldTabId) {
 }
 
 function mirrorDesktopWindow(desktopWindow) {
+<<<<<<< HEAD
     const desktopWindowInfo = {
         top: 0,
         left: 0,
@@ -54,6 +65,21 @@ function mirrorDesktopWindow(desktopWindow) {
         height: device.height !== 0 ? device.height : screen.height,
         focused: false,
     };
+=======
+  const desktopWindowInfo = {
+    top: 0,
+    left: 0,
+    width: screen.width * 2 / 3,
+    height: screen.height
+  };
+  const mobileWindowInfo = {
+    top: 0,
+    left: screen.width * 2 / 3,
+    width: localStorage['width'] ? parseInt(localStorage['width'], 10) : screen.width / 2,
+    height: localStorage['height'] ? parseInt(localStorage['height'], 10) : screen.height,
+    focused: false,
+  };
+>>>>>>> 4f5668825822d0b4f6157bd4cc76b868ab75c19c
 
     // resize desktop window
     chrome.windows.update(desktopWindow.id, desktopWindowInfo);
@@ -127,6 +153,13 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
 chrome.windows.onFocusChanged.addListener((newFocusedWindowId) => {
 	focusedWindowId = newFocusedWindowId;
 });
+
+// Clear everything when the mobile window closes
+chrome.windows.onRemoved.addListener((windowId) => {
+	if (windowId === mobileWindowId) {
+        initTracking();
+	}
+})
 
 function createMirroredWindow() {
 	chrome.windows.getCurrent((window) => {
