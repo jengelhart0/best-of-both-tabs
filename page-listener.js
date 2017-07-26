@@ -3,6 +3,7 @@
 (function () {
     const port = chrome.runtime.connect({name: "main-page-events"});
 
+    let highlighted = {};
     let scrollSendInProgress = false;
 
     // helpers
@@ -47,6 +48,15 @@
         }
       }
       else if (message.selectedText) {
+        console.log("in listener for text selection");
+        // let toHighlight = $(":contains("+ message.selectedText + ")");
+        let toHighlight = $(":contains(" + message.selectedText + ")")
+          .filter(function() { return $(this).children().length === 0; })
+          .parent();
+        for(let i = 0, length = toHighlight.length; i < length; i++) {
+          toHighlight[i].setAttribute("style", "background-color: yellow;");
+        }
+
       }
       sendResponse();
     });

@@ -10,7 +10,7 @@
 	"content_scripts": [
 		{
 			"matches": ["https://*/*"],
-			"js": ["page-listener.js"]
+			"js": ["third_party/jquery-3.2.1.js", "page-listener.js"]
 		}
 	],
 	"permissions": [
