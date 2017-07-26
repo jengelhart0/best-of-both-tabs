@@ -9,7 +9,6 @@ var storeDevice = (device) => {
 	localStorage['width'] = userAgents[device]['width'];
 	localStorage['height'] = userAgents[device]['height'];
 };
-
 // "on" or "off"
 var storeScrollLock = (set) => {
 	localStorage['scrollLock'] = set;
@@ -24,6 +23,16 @@ var storeStartSession = (set) => {
 var storeGlueWindows = (set) => {
 	localStorage['glueWindows'] = set;
 };
+
+// get device
+var getDevice = () => {
+	return {
+		'device': localStorage['device'],
+		'ua': localStorage['ua'],
+		'width': parseInt(localStorage['width'], 10),
+		'height': parseInt(localStorage['height'], 10)
+	}
+}
 
 // "on" or "off"
 var getScrollLock = () => {

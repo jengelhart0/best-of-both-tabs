@@ -45,11 +45,13 @@ function mirrorDesktopWindow(desktopWindow) {
         width: screen.width / 2,
         height: screen.height
     };
+
+    let device = chrome.extension.getBackgroundPage().getDevice();
     const mobileWindowInfo = {
         top: 0,
         left: screen.width / 2,
-        width: localStorage['width'] ? parseInt(localStorage['width'], 10) : screen.width / 2,
-        height: localStorage['height'] ? parseInt(localStorage['height'], 10) : screen.height,
+        width: device.width !== 0 ? device.width : screen.width / 2,
+        height: device.height !== 0 ? device.height : screen.height,
         focused: false,
     };
 
@@ -182,7 +184,8 @@ function createMirroredWindow() {
 				}
 			}
 			if(i < headers.length) {
-				headers[i].value = localStorage['ua']
+				let device = chrome.extension.getBackgroundPage.getDevice();
+				headers[i].value = device.ua;
 			}
 			return {requestHeaders: headers};
 	}, requestFilter, ['requestHeaders','blocking']);

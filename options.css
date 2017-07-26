@@ -4,12 +4,12 @@ html, body {
 }
 body {
 	font-family: Arial, sans-serif;
-	font-size: 13px;
+	font-size: 14px;
 }
 h1 {
 	-webkit-user-select: none;
 	border-bottom: 1px solid #EEE;
-	color: #53637D;
+	color: #00af87;
 	font-size: 190%;
 	font-weight: normal;
 	margin: 0;
@@ -19,7 +19,7 @@ h1 {
 	text-shadow: white 0 1px 2px;
 }
 h2 {
-	color: #53637D;
+	color: #00af87;
 	font-size: 120%;
 	padding: 0;
 	margin: 2em 0 0.3em 0;
@@ -61,7 +61,7 @@ p {
 #nav a {
 	border-bottom: 1px solid transparent;
 	border-top: 1px solid transparent;
-	color: #426DC9;
+	color: #00af87;
 	cursor: pointer;
 	display: block;
 	font-size: 105%;
@@ -113,6 +113,15 @@ label {
 	cursor: default;
 	font-size: 13px;
 }
+input[type=text] {
+	width: 200px;
+	height: 16px;
+}
+input[type=number] {
+	width: 150px;
+	height: 16px;
+}
+
 .hidden {
 	display: none;
 }

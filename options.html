@@ -1,9 +1,21 @@
 <!DOCTYPE html>
 <html>
-	<title>settings!</title>
+	<title>Best of Both Tabs Settings</title>
 	<link rel="stylesheet" type="text/css" href="options.css"
 <body>
-	<h1>settings page</h1>
+	<div id="navbar-container">
+		<h1>Best of Both Tabs</h1>
+		<ul id="nav">
+			<li id="nav-item-gettingstarted">
+				<a>Getting Started</a>
+			</li>
+			<li id="nav-item-settings">
+				<a>Settings</a>
+			</li>
+		</ul>
+	</div>
+	<div id="wrapper">
+	<div class="content" id="settings">
 	<form id="settings">
 		<fieldset>
 			<legend>Change Device:</legend>
@@ -36,11 +48,11 @@
 			<table>
 			<tbody>
 				<tr>
-					<td><input id="scoll-lock-on" type="radio" name="scroll" value="on"></td>
+					<td><input id="scroll-lock-on" type="radio" name="scroll" value="on"></td>
 					<td><label for="scroll-lock-on">On</label></td>
 				</tr>
 				<tr>
-					<td><input id="scoll-lock-off" type="radio" name="scroll" value="off"></td>
+					<td><input id="scorll-lock-off" type="radio" name="scroll" value="off"></td>
 					<td><label for="scroll-lock-off">Off</label></td>
 				</tr>
 			</tbody>
@@ -77,6 +89,8 @@
 			</table>
 		</fieldset>
 	</form>
+	</div>
+	</div>
 	<script src="options.js"></script>
 </body>
 </html>

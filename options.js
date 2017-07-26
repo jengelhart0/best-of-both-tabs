@@ -77,9 +77,47 @@ let addListeners = () => {
 	addGlueWindowsListeners();
 }
 
+
+let getDefaults = () => {
+	let device = chrome.extension.getBackgroundPage().getDevice().device;
+	let sel = document.getElementById("device-select");
+	var opts = sel.options;
+	for (var opt, i = 0; opt = opts[i]; i++) {
+		if (opt.value == device) {
+			sel.selectedIndex = i;
+			break;
+		}
+	}	
+
+	let scrollLock = chrome.extension.getBackgroundPage().getScrollLock();
+	if (scrollLock === "on")
+	{
+		document.getElementById("scroll-lock-on").checked = true;
+	} else {
+		document.getElementById("scroll-lock-off").checked = true;
+	}
+
+	let session = chrome.extension.getBackgroundPage().getStartSession();
+	if (session === "same")
+	{
+		document.getElementById("session-same").checked = true;
+	} else {
+		document.getElementById("session-new").checked = true;
+	}
+
+	let glue = chrome.extension.getBackgroundPage().getGlueWindows();
+	if (glue === "on")
+	{
+		document.getElementById("glue-on").checked = true;
+	} else {
+		document.getElementById("glue-off").checked = true;
+	}
+}
+
 // run on page load
 let init = () => {
 	addListeners();
 	buildDeviceOptions();
+	getDefaults();
 }
 init();
