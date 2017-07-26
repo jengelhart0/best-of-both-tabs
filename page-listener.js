@@ -19,7 +19,6 @@
     function sendScrollPercentage() {
       const scrollPercentage = getCurrentScrollPercentage();
       scrollSendInProgress = true;
-      console.log('sending scroll percentage: ' + scrollPercentage + 'scroll send in prog' + scrollSendInProgress);
       chrome.runtime.sendMessage(null, {"scrollPercentage": scrollPercentage}, null,
         function() {
             scrollSendInProgress = false;
@@ -40,7 +39,6 @@
 
       // scroll in response to scroll message
       if (message.scrollPercentage) {
-        console.log("receiving scroll percentage: " + message.scrollPercentage + 'scroll send in prog' + scrollSendInProgress);
       }
       if (message.scrollPercentage && !scrollSendInProgress) {
         if (message.scrollPercentage !== getCurrentScrollPercentage()) {
@@ -49,7 +47,6 @@
         }
       }
       else if (message.selectedText) {
-        console.log("content script listener received selected text: " + message.selectedText);
       }
       sendResponse();
     });

@@ -31,7 +31,7 @@ var getScrollLock = () => {
 };
 
 // "new" or "same"
-var getStartSession = (set) => {
+var getStartSession = () => {
 	return localStorage['startSession'];
 };
 
