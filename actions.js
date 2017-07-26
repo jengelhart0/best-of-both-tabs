@@ -11,6 +11,10 @@ let mobileWindowId;
 // Marks whether a new tab is currently being created, prevents "infinite loops" of tab creation
 let newTabBeingCreated = false;
 
+// Keep track of current active window for terrible, hacky reasons (so we can know if tab navigation was user initiated or programmatic)
+// Abandon hope all ye who enter here
+let focusedWindowId;
+
 function getCorrespondingTab(tabId) {
     let correspondingTab = tabPairs[tabId] || false;
 
@@ -37,7 +41,8 @@ function mirrorDesktopWindow(desktopWindow, oldTabId) {
 // Listen to URL change in any tab and update the corresponding tab with the proper url
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 	let correspondingTab = getCorrespondingTab(tabId);
-	if (changeInfo.url && correspondingTab) {
+	changeInfo.url ? console.log(tab.windowId + " " + focusedWindowId) : void(0);
+	if (changeInfo.url && correspondingTab && tab.windowId === focusedWindowId) {
 		chrome.tabs.update(correspondingTab, {url: changeInfo.url});
 	}
 });
@@ -89,6 +94,12 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
 	}
 });
 
+// Keep track of when the focused window changes
+chrome.windows.onFocusChanged.addListener((newFocusedWindowId) => {
+	focusedWindowId = newFocusedWindowId
+	console.log(focusedWindowId)
+})
+
 function createMirroredWindow() {
 	chrome.windows.getCurrent((window) => {
 		const desktopWindowInfo = {
@@ -103,14 +114,17 @@ function createMirroredWindow() {
 			width: localStorage['width'] ? parseInt(localStorage['width'], 10) : screen.width / 2,
 			height: localStorage['height'] ? parseInt(localStorage['height'], 10) : screen.height,
 			focused: false,
-			url: 'http://tripadvisor.com'
 		};
 
 		// resize desktop window
 		chrome.windows.update(window.id, desktopWindowInfo);
 
+		// Mark the initilizer window as the active window
+        focusedWindowId = window.id;
+
         // create mobile window, add to map
         chrome.tabs.query({active: true, currentWindow: true}, (tabArray) => {
+        	mobileWindowInfo.url = tabArray[0].url;
             chrome.windows.create(mobileWindowInfo, mirrorDesktopWindow(window, tabArray[0].id));
         });
 	});
