@@ -41,7 +41,6 @@ function mirrorDesktopWindow(desktopWindow, oldTabId) {
 // Listen to URL change in any tab and update the corresponding tab with the proper url
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 	let correspondingTab = getCorrespondingTab(tabId);
-	changeInfo.url ? console.log(tab.windowId + " " + focusedWindowId) : void(0);
 	if (changeInfo.url && correspondingTab && tab.windowId === focusedWindowId) {
 		chrome.tabs.update(correspondingTab, {url: changeInfo.url});
 	}
@@ -96,8 +95,7 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
 
 // Keep track of when the focused window changes
 chrome.windows.onFocusChanged.addListener((newFocusedWindowId) => {
-	focusedWindowId = newFocusedWindowId
-	console.log(focusedWindowId)
+	focusedWindowId = newFocusedWindowId;
 })
 
 function createMirroredWindow() {
