@@ -172,7 +172,7 @@ function createMirroredWindow() {
 		// stub out scrolling messages when scrolling is locked
 		let scrollLock = chrome.extension.getBackgroundPage().getScrollLock();
 		if (message.scrollPercentage && scrollLock !== 'on') {
-			return
+			message.scrollPercentage = undefined;
 		}
 		if(correspondingTabId) {
 			chrome.tabs.sendMessage(correspondingTabId, message, null, sendResponse);
