@@ -17,6 +17,7 @@ h1 {
 	padding-top: 11px;
 	-webkit-padding-end: 24px;
 	text-shadow: white 0 1px 2px;
+	font-weight: bold;
 }
 h2 {
 	color: #00af87;
@@ -33,6 +34,11 @@ p {
 	padding: 0;
 	padding-bottom: 0.7em;
 }
+#logo {
+	padding: 10px;
+	max-width: 90%;
+}
+
 #navbar-container {
 	-webkit-border-end: 1px solid #c6c9ce;
 	background: -webkit-linear-gradient(rgba(234, 238, 243, 0.2), #EAEEF3), -webkit-linear-gradient(left, #EAEEF3, #EAEEF3 97%, #D3D7DB);
@@ -120,6 +126,9 @@ input[type=text] {
 input[type=number] {
 	width: 150px;
 	height: 16px;
+}
+#device-select {
+	width: 200px;
 }
 
 .hidden {
