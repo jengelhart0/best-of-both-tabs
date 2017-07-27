@@ -2,7 +2,7 @@
 // browser actions
 
 // Map from desktop tab id's to mobile tab id's
-let tabPairs
+var tabPairs
 
 // ID's of desktop (left) and mobile (right) windows
 let desktopWindowId;

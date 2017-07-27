@@ -55,14 +55,52 @@ let addStartSessionListeners = () => {
     }
 }
 
-let addGlueWindowsListeners = () => {
-	var radios = document.forms.settings.glue;
-    for(var i = 0; i < radios.length; i++) {
-        radios[i].onclick = function () {
-           	let storeGlueWindows = chrome.extension.getBackgroundPage().storeGlueWindows;
-           	storeGlueWindows(this.value);
-        };
-    }
+// run on all pages
+let runContentAnalysis = () => {
+	let tabPairs = chrome.extension.getBackgroundPage().tabPairs;
+	let deskToMobile = {}
+	chrome.tabs.query({}, (tabs) => {
+		for (var i = 0; i < tabs.length; i++) {
+			let tab = tabs[i];
+			if (tabPairs[tab.id]) {
+				deskToMobile[tab.id] = tabPairs[tab.id]
+			}
+		}
+		console.log(deskToMobile);
+
+		chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+			if (message.links) {
+				console.log(message);
+			}
+		})
+
+		Object.keys(deskToMobile).forEach((key) => {
+			let message = {fetchLinks: true}
+			// chrome.tabs.sendMessage(parseInt(key, 10), message, null, desktopCallback);
+			// chrome.tabs.sendMessage(parseInt(deskToMobile[key], 10), message, null, mobileCallback);
+			chrome.tabs.sendMessage(parseInt(key, 10), message, null, (response) => {
+				console.log(response);
+			});
+			chrome.tabs.sendMessage(parseInt(deskToMobile[key], 10), message, null, (response) => {
+				console.log(response);
+			});
+		})
+	})
+}
+
+
+// let desktopCallback = (response) => {
+// 	console.log('desktop', response);
+// }
+
+// let mobileCallback = (response) => {
+// 	console.log('mobile', response);
+// }
+
+
+let addContentAnalysisListener = () => {
+	let btn = document.getElementById('content-analysis-btn');
+	btn.addEventListener('click', runContentAnalysis);
 }
 
 
@@ -74,7 +112,7 @@ let addListeners = () => {
 
 	addScrollLockListeners();
 	addStartSessionListeners();
-	addGlueWindowsListeners();
+	addContentAnalysisListener();
 }
 
 
@@ -103,14 +141,6 @@ let getDefaults = () => {
 		document.getElementById("session-same").checked = true;
 	} else {
 		document.getElementById("session-new").checked = true;
-	}
-
-	let glue = chrome.extension.getBackgroundPage().getGlueWindows();
-	if (glue === "on")
-	{
-		document.getElementById("glue-on").checked = true;
-	} else {
-		document.getElementById("glue-off").checked = true;
 	}
 }
 

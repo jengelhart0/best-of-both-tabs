@@ -12,16 +12,16 @@
 		let links = getLinks();
 	}
 
-	window.addEventListener("dblclick", function() {
-		sendLinks();
-    });
-
 	chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-		if (message.links) {
-			console.log('other links', message.links)
-			console.log('my links', getLinks());
+		if (message.fetchLinks) {
+			let response = {
+				links: getLinks(),
+				url: location.href
+			}
+			chrome.tabs.sendMessage(sender.tabId, response);
 		}
-     	sendResponse();
+		else {
+		}
     });
 
 })();
