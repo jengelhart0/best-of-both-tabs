@@ -70,7 +70,7 @@
           .filter(function() { return $(this).children().length === 0; })
 
         for(let i = 0, length = toHighlight.length; i < length; i++) {
-          toHighlight[i].setAttribute("style", "background-color: green;");
+          toHighlight[i].setAttribute("style", "background-color: lightgreen;");
           highlighted = toHighlight;
         }
       }
