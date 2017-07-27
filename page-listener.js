@@ -3,17 +3,30 @@
 (function () {
     const port = chrome.runtime.connect({name: "main-page-events"});
 
+    let highlighted = [];
     let scrollSendInProgress = false;
+    let lastSelectedText = "";
 
     // helpers
     function getCurrentScrollPercentage () {
       return Math.round((document.body.scrollTop / document.body.scrollHeight) * 1000) / 1000;
     }
 
+    function clearHighlighted() {
+      for(let i = 0, length = highlighted.length; i < length; i++) {
+        highlighted[i].setAttribute("style", "background-color: transparent;");
+      }
+      highlighted = [];
+      lastSelectedText = "";
+    }
+
     // message senders
     function sendSelectedText() {
       const selectedText = window.getSelection().toString();
-      chrome.runtime.sendMessage({"selectedText": selectedText});
+      if(lastSelectedText !== selectedText) {
+        chrome.runtime.sendMessage({"selectedText": selectedText});
+        lastSelectedText = selectedText;
+      }
     }
 
     function sendScrollPercentage() {
@@ -30,6 +43,11 @@
       sendSelectedText();
     });
 
+    window.addEventListener("mousedown", function(){
+      console.log("mousedown");
+      clearHighlighted();
+    });
+
     window.addEventListener("scroll", function() {
       sendScrollPercentage();
     });
@@ -38,8 +56,6 @@
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
       // scroll in response to scroll message
-      if (message.scrollPercentage) {
-      }
       if (message.scrollPercentage && !scrollSendInProgress) {
         if (message.scrollPercentage !== getCurrentScrollPercentage()) {
           const newScroll = message.scrollPercentage * document.body.scrollHeight;
@@ -47,6 +63,16 @@
         }
       }
       else if (message.selectedText) {
+        console.log(message.selectedText);
+        clearHighlighted();
+        // let toHighlight = $(":contains("+ message.selectedText + ")");
+        let toHighlight = $("*:contains(" + message.selectedText + ")")
+          .filter(function() { return $(this).children().length === 0; })
+
+        for(let i = 0, length = toHighlight.length; i < length; i++) {
+          toHighlight[i].setAttribute("style", "background-color: green;");
+          highlighted = toHighlight;
+        }
       }
       sendResponse();
     });
