@@ -64,6 +64,7 @@ function mirrorDesktopWindow(desktopWindow) {
         height: device.height !== 0 ? device.height : screen.height,
         focused: false,
     };
+
     // resize desktop window
     chrome.windows.update(desktopWindow.id, desktopWindowInfo);
 
@@ -147,15 +148,31 @@ chrome.windows.onRemoved.addListener((windowId) => {
 function createMirroredWindow() {
 	chrome.windows.getCurrent((window) => {
 		let startSession = chrome.extension.getBackgroundPage().getStartSession();
-		if (startSession === "new") {
-			chrome.tabs.query({active: true, windowId: window.id}, (tabArray) => {
-                chrome.windows.create({ url: tabArray[0].url}, (newWindow) => {
-                    mirrorDesktopWindow(newWindow);
-				})
-			})
-		} else {
-			mirrorDesktopWindow(window);
-		}
+        chrome.tabs.query({active: true, windowId: window.id}, (tabArray) => {
+            if (startSession === "new") {
+                if (tabArray[0].url.includes("tripadvisor")) {
+                    chrome.windows.create({ url: tabArray[0].url}, (newWindow) => {
+                        mirrorDesktopWindow(newWindow);
+                    });
+                } else {
+                    chrome.windows.create({ url: "https://www.tripadvisor.com/"}, (newWindow) => {
+                        mirrorDesktopWindow(newWindow);
+                    });
+				}
+
+
+            } else {
+            	if (tabArray[0].url.includes("tripadvisor")) {
+                    mirrorDesktopWindow(window);
+				} else {
+            		chrome.tabs.update(tabArray[0].id, {url: "https://www.tripadvisor.com/"}, () => {
+            			mirrorDesktopWindow(window);
+					})
+				}
+
+            }
+        })
+
 	});
 
 	var requestFilter = {
