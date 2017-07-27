@@ -55,17 +55,6 @@ let addStartSessionListeners = () => {
     }
 }
 
-let addGlueWindowsListeners = () => {
-	var radios = document.forms.settings.glue;
-    for(var i = 0; i < radios.length; i++) {
-        radios[i].onclick = function () {
-           	let storeGlueWindows = chrome.extension.getBackgroundPage().storeGlueWindows;
-           	storeGlueWindows(this.value);
-        };
-    }
-}
-
-
 let addListeners = () => {
 	let deviceSelect = document.getElementById("device-select");
 	deviceSelect.addEventListener("change", changeDevice);
@@ -74,7 +63,6 @@ let addListeners = () => {
 
 	addScrollLockListeners();
 	addStartSessionListeners();
-	addGlueWindowsListeners();
 }
 
 
@@ -103,14 +91,6 @@ let getDefaults = () => {
 		document.getElementById("session-same").checked = true;
 	} else {
 		document.getElementById("session-new").checked = true;
-	}
-
-	let glue = chrome.extension.getBackgroundPage().getGlueWindows();
-	if (glue === "on")
-	{
-		document.getElementById("glue-on").checked = true;
-	} else {
-		document.getElementById("glue-off").checked = true;
 	}
 }
 
