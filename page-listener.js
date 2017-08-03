@@ -4,7 +4,6 @@
     const port = chrome.runtime.connect({name: "main-page-events"});
 
     let highlighted = [];
-    let scrollSendInProgress = false;
     let lastSelectedText = "";
 
     // helpers
@@ -31,11 +30,7 @@
 
     function sendScrollPercentage() {
       const scrollPercentage = getCurrentScrollPercentage();
-      scrollSendInProgress = true;
-      chrome.runtime.sendMessage(null, {"scrollPercentage": scrollPercentage}, null,
-        function() {
-            scrollSendInProgress = false;
-        });
+      chrome.runtime.sendMessage(null, {"scrollPercentage": scrollPercentage});
     }
 
     // on-page event listeners
@@ -54,13 +49,10 @@
 
     // message listener that selects acts according to type of message
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-
       // scroll in response to scroll message
-      if (message.scrollPercentage && !scrollSendInProgress) {
-        if (message.scrollPercentage !== getCurrentScrollPercentage()) {
-          const newScroll = message.scrollPercentage * document.body.scrollHeight;
-          window.scrollTo(document.documentElement.scrollLeft, newScroll);
-        }
+      if (message.scrollPercentage) {
+        const newScroll = message.scrollPercentage * document.body.scrollHeight;
+        window.scrollTo(document.documentElement.scrollLeft, newScroll);
       }
       else if (message.selectedText) {
         console.log(message.selectedText);
