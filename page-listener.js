@@ -48,7 +48,7 @@
       clearHighlighted();
     });
 
-    window.addEventListener("scroll", function() {
+    window.addEventListener("wheel", function() {
       sendScrollPercentage();
     });
 
