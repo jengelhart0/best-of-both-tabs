@@ -1,79 +1,79 @@
 <!DOCTYPE html>
 <html>
 	<title>Best of Both Tabs Settings</title>
+	<link rel="stylesheet" type="text/css" href="./third_party/normalize.css">
+	<link rel="stylesheet" type="text/css" href="/third_party/skeleton.css">
 	<link rel="stylesheet" type="text/css" href="options.css">
 <body>
-	<div id="navbar-container">
-		<img src="logo.svg" id="logo"></img>
-		<h1>Best of Both Tabs</h1>
-		<ul id="nav">
-			<li id="nav-item-settings">
-				<a>Settings</a>
-			</li>
-		</ul>
+	<div class="container">
+	<div>
+		<h1 id="page-header" class="u-full-width">Best of Both Tabs</h1>
 	</div>
-	<div id="wrapper">
-	<div class="content">
 	<form id="settings">
-		<fieldset>
-			<legend>Change Device:</legend>
-			<select id="device-select"></select>
-		</fieldset>
-		<fieldset>
-			<legend>Add a new device:</legend>
-			<table>
-			<tbody>
-				<tr>
-					<td><input id="name-input" type="text" placeholder="Device Name"></td>
-				</tr>
-				<tr>
-					<td><input id="user-agent-input" type="text" placeholder="User Agent"></td>
-				</tr>
-				<tr>
-					<td><input id="width-input" type="number" placeholder="width (px)"></td>
-				</tr>
-				<tr>
-					<td><input id="height-input" type="number" placeholder="height (px)"></td>
-				</tr>
-				<tr>
-					<td><button id="add-btn">Add</button></td>
-				</tr>
-			</tbody>
-			</table>
-		</fieldset>
-		<fieldset>
-			<legend>Scroll lock:</legend>
-			<table>
-			<tbody>
-				<tr>
-					<td><input id="scroll-lock-on" type="radio" name="scroll" value="on"></td>
-					<td><label for="scroll-lock-on">On</label></td>
-				</tr>
-				<tr>
-					<td><input id="scroll-lock-off" type="radio" name="scroll" value="off"></td>
-					<td><label for="scroll-lock-off">Off</label></td>
-				</tr>
-			</tbody>
-			</table>
-		</fieldset>
-		<fieldset>
-			<legend>Start Session in:</legend>
-			<table>
-			<tbody>
-				<tr>
-					<td><input id="session-same" type="radio" name="session" value="same"></td>
-					<td><label for="session-same">Same Window</label></td>
-				</tr>
-				<tr>
-					<td><input id="session-new" type="radio" name="session" value="new"></td>
-					<td><label for="session-new">New Window</label></td>
-				</tr>
-			</tbody>
-			</table>
-		</fieldset>
-		<p> Settings will take effect on close.</p>
+		<div class="row settings-section">
+			<div class="four columns setting-name">
+				<h5 for="device-select"> Select Device</h5>
+			</div>
+			<div class="eight columns">
+				<select id="device-select" class="u-full-width"></select>
+			</div>
+		</div>
+		<div class="row settings-section">
+			<div class="four columns setting-name">
+				<h5>Add a new device</h5>
+			</div>
+			<div class="eight columns">
+				<div>
+				<input id="name-input" class="u-full-width" type="text" placeholder="Device Name">
+				</div>
+				<div>
+				<input id="user-agent-input" class="u-full-width" type="text" placeholder="User Agent String">
+				</div>
+				<div>
+				<input id="width-input" class="u-full-width" type="number" placeholder="width (px)">
+				</div>
+				<div>
+				<input id="height-input" class="u-full-width" type="number" placeholder="height (px)">
+				</div>
+				<div>
+				<button id="add-btn">Add</button>
+				</div>
+			</div>
+		</div>
+		<div class="row settings-section">
+			<div class="four columns setting-name">
+				<h5>Scroll lock</h5>
+			</div>
+			<div class="eight columns">
+					<label for="scroll-lock-on" class="u-full-width">
+						<input id="scroll-lock-on" type="radio" name="scroll" value="on" />
+						On
+					</label>
+					<label for="scroll-lock-off">
+						<input id="scroll-lock-off" type="radio" name="scroll" value="off" />
+						Off
+					</label>
+			</div>
+		</div>
+		<div class="row settings-section">
+			<div class="four columns setting-name">
+				<h5>Start Session in</h5>
+			</div>
+			<div class="eight columns">
+				<label for="session-same">
+					<input id="session-same" type="radio" name="session" value="same" />
+					Same Window
+				</label>
+				<label for="session-new">
+					<input id="session-new" type="radio" name="session" value="new" />
+					New Window
+				</label>
+			</div>
+		</div>
+		<div class="row">
+			<p class="u-full-width"> Settings will take effect when this page is closed.</p>
+		</div>
 	</form>
-	</div>
 	</div>
 	<script src="options.js"></script>
 </body>
