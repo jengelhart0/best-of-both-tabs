@@ -76,8 +76,7 @@
     // Marks whether a new tab is currently being created, prevents "infinite loops" of tab creation
     let newTabBeingCreated = false;
 
-    // Keep track of current active window for terrible, hacky reasons (so we can know if tab navigation was user initiated or programmatic)
-    // Abandon hope all ye who enter here
+    // Keep track of current active window so we can know if tab navigation was user initiated or programmatic
     let focusedWindowId;
 
     // Listeners for tab creation, removal, navigation, and focus change to mirror those events in the other window
@@ -199,7 +198,7 @@
 
         });
 
-        // Listener to handle messages from content script
+        // Listener to handle messages from content script. For now, used for mirroring window scrolling
         // super important method!
         chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             const correspondingTabId = tabPairs.getCorrespondingTab(sender.tab.id);
