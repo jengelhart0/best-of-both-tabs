@@ -1,54 +1,100 @@
 'use strict';
-// browser actions
+
+//TODO bwehner wrap in iife/block or figure out modules s
+
+/**
+ * Data structure representing all of the mobile-desktop tab pairings
+ * @constructor //TODO bwehner
+ */
+function MobileDesktopPairings() {
+	this._keyedByDesktop ={};
+	this._keyedByMobile = {};
+
+    /**
+	 * Add a tab pairing
+     * @param desktopTabId Integer Tab ID of the desktop tab to be added to the pairing
+     * @param mobileTabId Integer Tab ID of the mobile tab to be added to the pairing
+     */
+    MobileDesktopPairings.prototype.addPair = function(desktopTabId, mobileTabId) {
+    	if (!Number.isInteger(desktopTabId) || !Number.isInteger(mobileTabId)) {
+    		throw new Error("Tried to insert non-integer into MobileDesktopPairings");
+		}
+		this._keyedByDesktop[desktopTabId] = mobileTabId;
+		this._keyedByMobile[mobileTabId] = desktopTabId;
+	};
+
+    MobileDesktopPairings.prototype.getCorrespondingTab = function(tabId) {
+    	if (!Number.isInteger(tabId)) {
+    		throw new Error("Given Tab Id is not an integer");
+		}
+		return this._keyedByDesktop[tabId] || this._keyedByMobile[tabId] || false;
+	};
+
+	MobileDesktopPairings.prototype.contains = function(tabId) {
+        if (!Number.isInteger(tabId)) {
+            throw new Error("Given Tab Id is not an integer");
+        }
+		return !!this.getCorrespondingTab(tabId);
+	};
+
+    /**
+	 * Removes a pair from the mapping
+     * @param eitherTabId Integer id of either the desktop or mobile tab from the map
+     */
+    MobileDesktopPairings.prototype.removeTabPair = function(eitherTabId) {
+        if (!Number.isInteger(eitherTabId)) {
+            throw new Error("Given Tab Id is not an integer");
+        }
+		delete this._keyedByDesktop[eitherTabId];
+		delete this._keyedByMobile[eitherTabId];
+	};
+
+    MobileDesktopPairings.prototype.clearPairings = function() {
+    	this._keyedByDesktop = {};
+    	this._keyedByMobile = {};
+	};
+
+    /**
+	 * Is the tab a desktop tab? Will also return false if tab does not exist in any pairing
+     * @param tabId Integer
+     */
+    MobileDesktopPairings.prototype.isDesktopTab = function(tabId) {
+    	return !!this._keyedByDesktop[tabId];
+	};
+}
 
 // Map from desktop tab id's to mobile tab id's
-let tabPairs
+const tabPairs = new MobileDesktopPairings();
 
 // ID's of desktop (left) and mobile (right) windows
 let desktopWindowId;
 let mobileWindowId;
 
 // Marks whether a new tab is currently being created, prevents "infinite loops" of tab creation
-let newTabBeingCreated
+let newTabBeingCreated = false;
 
 // Keep track of current active window for terrible, hacky reasons (so we can know if tab navigation was user initiated or programmatic)
 // Abandon hope all ye who enter here
 let focusedWindowId;
 
-function initTracking() {
-	tabPairs = {};
+const clearTrackingInfo = () => {
+	tabPairs.clearPairings()
 	desktopWindowId = void(0);
 	mobileWindowId = void(0);
 	newTabBeingCreated = false;
 	focusedWindowId = void(0);
-}
+};
 
-initTracking();
-
-function getCorrespondingTab(tabId) {
-    let correspondingTab = tabPairs[tabId] || false;
-
-    if (!correspondingTab) {
-        Object.keys(tabPairs).forEach((key) => {
-            if (tabId === tabPairs[key]) {
-                correspondingTab = parseInt(key, 10);
-            }
-        });
-    }
-
-    return correspondingTab;
-}
-
-function configureWindowSync(desktopWindow, oldTabId) {
-	return function createAndMirrorMobileWindow(mobileWindow) {
-        tabPairs[oldTabId] = mobileWindow.tabs[0].id;
+const configureWindowSync = (desktopWindow, desktopTabId) => {
+	return (mobileWindow) => {
+        tabPairs.addPair(desktopTabId, mobileWindow.tabs[0].id);
 
 		desktopWindowId = desktopWindow.id;
 		mobileWindowId = mobileWindow.id;
     }
-}
+};
 
-function mirrorDesktopWindow(desktopWindow) {
+const mirrorDesktopWindow = (desktopWindow) => {
     const desktopWindowInfo = {
         top: 0,
         left: 0,
@@ -56,7 +102,7 @@ function mirrorDesktopWindow(desktopWindow) {
         height: screen.height
     };
 
-    let device = chrome.extension.getBackgroundPage().getDevice();
+    const device = chrome.extension.getBackgroundPage().getDevice();
     const mobileWindowInfo = {
         top: 0,
 		left: screen.width * 2 / 3,
@@ -80,7 +126,7 @@ function mirrorDesktopWindow(desktopWindow) {
 
 // Listen to URL change in any tab and update the corresponding tab with the proper url
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-	let correspondingTab = getCorrespondingTab(tabId);
+	const correspondingTab = tabPairs.getCorrespondingTab(tabId);
 	if (changeInfo.url && correspondingTab && tab.windowId === focusedWindowId) {
 		chrome.tabs.update(correspondingTab, {url: changeInfo.url});
 	}
@@ -88,14 +134,14 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 // Listen to tab creation and mirror it in the other window and update the tab map if relevant
 chrome.tabs.onCreated.addListener((newUserTab) => {
-	let newTabUrl = newUserTab.url;
+	const newTabUrl = newUserTab.url;
 	if (!newTabBeingCreated && newUserTab.windowId === desktopWindowId) {
 		// Prevents infinite loop of tab creation
         newTabBeingCreated = true;
 		chrome.tabs.create({windowId: mobileWindowId}, (newProgrammaticTab) => {
 			chrome.tabs.update(newProgrammaticTab.id, {url: newTabUrl}, (updatedProgrammaticTab) => {
                 // New tab is in desktop window, programmatic is mobile
-                tabPairs[newUserTab.id] = newProgrammaticTab.id;
+                tabPairs.addPair(newUserTab.id, newProgrammaticTab.id);
                 newTabBeingCreated = false;
 			});
 		});
@@ -104,7 +150,7 @@ chrome.tabs.onCreated.addListener((newUserTab) => {
         chrome.tabs.create({windowId: desktopWindowId}, (newProgrammaticTab) => {
             // New tab is in mobile window, programmatic is desktop
             chrome.tabs.update(newProgrammaticTab.id, {url: newTabUrl}, (updatedProgrammaticTab) => {
-                tabPairs[newProgrammaticTab.id] = newUserTab.id;
+                tabPairs.addPair(newProgrammaticTab.id, newUserTab.id);
                 newTabBeingCreated = false;
             });
         });
@@ -113,21 +159,16 @@ chrome.tabs.onCreated.addListener((newUserTab) => {
 
 // Listen to tab removal and mirror it in the other window and update the tab map if relevant
 chrome.tabs.onRemoved.addListener((removedTabId) => {
-	let removedTabIsDesktop = tabPairs[removedTabId] ? true : false;
-	let correspondingTab = getCorrespondingTab(removedTabId);
+	const correspondingTab = tabPairs.getCorrespondingTab(removedTabId);
     if (correspondingTab) {
-        if (removedTabIsDesktop) {
-            delete tabPairs[removedTabId];
-        } else {
-            delete tabPairs[correspondingTab];
-        }
+        tabPairs.removeTabPair(removedTabId);
     	chrome.tabs.remove(correspondingTab);
 	}
 });
 
 // Listen to a change in which tab is focused in a window and update the focus of the tab in the corresponding window
 chrome.tabs.onActivated.addListener((activeInfo) => {
-    let correspondingTab = getCorrespondingTab(activeInfo.tabId);
+    const correspondingTab = tabPairs.getCorrespondingTab(activeInfo.tabId);
 	if (correspondingTab && (activeInfo.windowId === desktopWindowId || activeInfo.windowId === mobileWindowId)) {
 		chrome.tabs.update(correspondingTab, {selected: true});
 	}
@@ -141,13 +182,13 @@ chrome.windows.onFocusChanged.addListener((newFocusedWindowId) => {
 // Clear everything when the mobile window closes
 chrome.windows.onRemoved.addListener((windowId) => {
 	if (windowId === mobileWindowId) {
-        initTracking();
+        clearTrackingInfo();
 	}
-})
+});
 
-function createMirroredWindow() {
+const createMirroredWindow = ()=> {
 	chrome.windows.getCurrent((window) => {
-		let startSession = chrome.extension.getBackgroundPage().getStartSession();
+		const startSession = chrome.extension.getBackgroundPage().getStartSession();
         chrome.tabs.query({active: true, windowId: window.id}, (tabArray) => {
             if (startSession === "new") {
                 if (tabArray[0].url.includes("tripadvisor")) {
@@ -175,19 +216,13 @@ function createMirroredWindow() {
 
 	});
 
-	var requestFilter = {
-		urls: [
-			"<all_urls>"
-		]
-	};
-
 	// Listener to handle messages from content script
 	// super important method!
 	chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-		let correspondingTabId = getCorrespondingTab(sender.tab.id);
+		const correspondingTabId = tabPairs.getCorrespondingTab(sender.tab.id);
 
 		// stub out scrolling messages when scrolling is locked
-		let scrollLock = chrome.extension.getBackgroundPage().getScrollLock();
+		const scrollLock = chrome.extension.getBackgroundPage().getScrollLock();
 		if (message.scrollPercentage && scrollLock !== 'on') {
 			return
 		}
@@ -200,28 +235,21 @@ function createMirroredWindow() {
 
 	// Listener to redirect to mobile pages
 	chrome.webRequest.onBeforeSendHeaders.addListener((details) => {
-			var headers = details.requestHeaders;
-			// check if the tabId is a value in the map (a mobile page)
-			var found = false;
-			Object.keys(tabPairs).forEach((key) => {
-				if (tabPairs[key] == details.tabId) {
-					found = true
-				}
-			})
-			if (!found) {
-				return;
+		const headers = details.requestHeaders;
+		// check if the tabId is a mobile page
+		const isMobilePage = tabPairs.contains(details.tabId) && !tabPairs.isDesktopTab(details.tabId);
+		if (isMobilePage) {
+			for(let i = 0; i < headers.length; i += 1) {
+                if( headers[i].name === 'User-Agent' ) {
+                    const device = chrome.extension.getBackgroundPage().getDevice();
+                    headers[i].value = device.ua;
+                    break;
+                }
 			}
-			for(var i = 0, l = headers.length; i < l; ++i) {
-				if( headers[i].name == 'User-Agent' ) {
-					break;
-				}
-			}
-			if(i < headers.length) {
-				let device = chrome.extension.getBackgroundPage().getDevice();
-				headers[i].value = device.ua;
-			}
-			return {requestHeaders: headers};
-	}, requestFilter, ['requestHeaders','blocking']);
+		}
+        return {requestHeaders: headers};
+
+	}, { urls: ["<all_urls>"] }, ['requestHeaders','blocking']);
 }
 
 
