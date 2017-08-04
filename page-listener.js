@@ -1,22 +1,49 @@
 'use strict';
 
-(function () {
+(function() {
     const port = chrome.runtime.connect({name: "main-page-events"});
 
-    let highlighted = [];
+    let highlighted = $();
+    let currentHighlighted = -1;
     let lastSelectedText = "";
 
     // helpers
     function getCurrentScrollPercentage () {
-      return Math.round((document.body.scrollTop / document.body.scrollHeight) * 1000) / 1000;
+      return document.body.scrollTop / document.body.scrollHeight;
     }
 
     function clearHighlighted() {
-      for(let i = 0, length = highlighted.length; i < length; i++) {
-        highlighted[i].setAttribute("style", "background-color: transparent;");
-      }
-      highlighted = [];
+      highlighted.each(function () {
+        let text = $(this).html();
+        $(this).parent().html(text);
+      });
+
+      highlighted = $();
       lastSelectedText = "";
+      currentHighlighted = -1;
+    }
+
+    function scrollThroughHighlighted(event) {
+      // if none of highlighted text has been scrolled, scroll to first
+      if(currentHighlighted == -1) {
+        currentHighlighted = 0;
+        highlighted.get(currentHighlighted).scrollIntoView(false);
+      }
+      else {
+        switch(event.which) {
+          // left arrow: scroll previous highlighted into view
+          case 37:
+            currentHighlighted = ((currentHighlighted - 1) + highlighted.length) % highlighted.length;
+            highlighted.get(currentHighlighted).scrollIntoView(false);
+            break;
+          // right arrow: scroll next highlighted into view
+          case 39:
+            currentHighlighted = (currentHighlighted + 1) % highlighted.length;
+            highlighted.get(currentHighlighted).scrollIntoView(false);
+            break;
+          default:
+        }
+      }
     }
 
     // message senders
@@ -28,6 +55,7 @@
       }
     }
 
+    // scroll percentage sent to paired tab to synchronize scroll
     function sendScrollPercentage() {
       const scrollPercentage = getCurrentScrollPercentage();
       chrome.runtime.sendMessage(null, {"scrollPercentage": scrollPercentage});
@@ -38,13 +66,21 @@
       sendSelectedText();
     });
 
-    window.addEventListener("mousedown", function(){
-      console.log("mousedown");
-      clearHighlighted();
+    window.addEventListener("mousedown", function(event){
+      // only clear highlighted on left click
+      if(event.which == 1) {
+        clearHighlighted();
+      }
     });
 
     window.addEventListener("wheel", function() {
       sendScrollPercentage();
+    });
+
+    $(document).keydown(function(event) {
+      if (highlighted.length) {
+        scrollThroughHighlighted(event);
+      }
     });
 
     // message listener that selects acts according to type of message
@@ -55,18 +91,16 @@
         window.scrollTo(document.documentElement.scrollLeft, newScroll);
       }
       else if (message.selectedText) {
-        console.log(message.selectedText);
         clearHighlighted();
         // let toHighlight = $(":contains("+ message.selectedText + ")");
-        let toHighlight = $("*:contains(" + message.selectedText + ")")
+        $("*:contains(" + message.selectedText + ")")
           .filter(function() { return $(this).children().length === 0; })
-
-        for(let i = 0, length = toHighlight.length; i < length; i++) {
-          toHighlight[i].setAttribute("style", "background-color: lightgreen;");
-          highlighted = toHighlight;
-        }
+          .each(function() {
+            let html = $(this).html();
+            $(this).html("<span class='highlighted' style='background-color: lightgreen'>" + html + "</span>");
+          });
+        highlighted = $(".highlighted");
       }
       sendResponse();
     });
-
 })();
