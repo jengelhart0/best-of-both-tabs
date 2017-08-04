@@ -1,4 +1,4 @@
-// store contants here
+// store constants here
 
 // map from name of device to info
 var userAgents = {
@@ -27,5 +27,4 @@ var userAgents = {
 		width: 414,
 		height: 736
 	}
-}
-
+};
