@@ -100,7 +100,10 @@
           // let toHighlight = $(":contains("+ message.selectedText + ")");
           highlightMatches = $("*:contains(" + message.selectedText + ")")
             .filter(function() { return $(this).children().length === 0; })
-          // highlightMatches = $(".highlightMatches");
+          if(highlightMatches.length) {
+            // scroll and highlight first match if results
+            scrollMatchAndHighlight(0);
+          }
         }
       }
       sendResponse();
