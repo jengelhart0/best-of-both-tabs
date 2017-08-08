@@ -2,8 +2,10 @@
 	"manifest_version": 2,
 	"name": "Best of Both Tabs",
 	"version": "0.1",
-	"options_page": "options.html",
-	"background": { "scripts": ["constants.js", "init.js", "background-main.js"] },
+	"options_ui": {
+		"page": "options.html"
+	},
+	"background": { "scripts": ["init.js", "background-main.js"] },
 	"browser_action": {
 		"default_icon": "icon.png"
 	},
@@ -21,6 +23,7 @@
 		"webRequest",
 		"webRequestBlocking",
 		"<all_urls>",
-		"tabs"
+		"tabs",
+		"storage"
 	]
 }

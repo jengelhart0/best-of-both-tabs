@@ -8,6 +8,11 @@
         constructor() {
             this._keyedByDesktop = {};
             this._keyedByMobile = {};
+            this.settings = {};
+            // Get current settings
+            chrome.storage.local.get(null, (items) => {
+                Object.assign(this.settings, items);
+            });
         };
 
         /**
@@ -64,6 +69,14 @@
         isDesktopTab(tabId) {
             return !!this._keyedByDesktop[tabId];
         };
+
+        /**
+         * Changes the settings.
+         * @param settings Object representing new settings
+         */
+        updateSettings(settings) {
+            Object.assign(this.settings, settings);
+        }
     }
 
     // The set of mobile-desktop tab pairings
@@ -78,6 +91,13 @@
 
     // Keep track of current active window so we can know if tab navigation was user initiated or programmatic
     let focusedWindowId;
+
+    // Listener to keep track of settings changing
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+        const newSettings = {}
+        Object.keys(changes).forEach((key) => newSettings[key] = changes[key].newValue);
+        tabPairs.updateSettings(newSettings);
+    });
 
     // Listeners for tab creation, removal, navigation, and focus change to mirror those events in the other window
     chrome.tabs.onCreated.addListener((newUserTab) => {
@@ -156,16 +176,15 @@
             height: screen.height
         };
 
-        const device = chrome.extension.getBackgroundPage().getDevice();
         const mobileWindowInfo = {
             top: 0,
             left: screen.width * 2 / 3,
-            width: device.width !== 0 ? device.width : screen.width / 2,
-            height: device.height !== 0 ? device.height : screen.height,
+            width: tabPairs.settings.width !== 0 ? tabPairs.settings.width : screen.width / 2,
+            height: tabPairs.settings.height !== 0 ? tabPairs.settings.height : screen.height,
             focused: false
         };
 
-        // resize desktop window
+        // Resize desktop window
         chrome.windows.update(desktopWindow.id, desktopWindowInfo);
 
         // Mark the initializer window as the focused window
@@ -185,9 +204,8 @@
 
     const createMirroredWindow = () => {
         chrome.windows.getCurrent((window) => {
-            const startSession = chrome.extension.getBackgroundPage().getStartSession();
             chrome.tabs.query({active: true, windowId: window.id}, (tabArray) => {
-                if (startSession === "new") {
+                if (tabPairs.settings.newWindow) {
                     chrome.windows.create({url: tabArray[0].url}, (newWindow) => {
                         mirrorDesktopWindow(newWindow);
                     });
@@ -199,14 +217,18 @@
         });
 
         // Listener to handle messages from content script. For now, used for mirroring window scrolling
-        // super important method!
         chrome.runtime.onMessage.addListener((message, sender) => {
             const correspondingTabId = tabPairs.getCorrespondingTab(sender.tab.id);
 
-            // stub out scrolling messages when scrolling is locked
-            const scrollLock = chrome.extension.getBackgroundPage().getScrollLock();
-            if (!(message.scrollPercentage && scrollLock !== 'on') && correspondingTabId) {
-                chrome.tabs.sendMessage(correspondingTabId, message);
+            if (correspondingTabId) {
+                // if (message.scrollPercentage && !tabPairs.settings.scrollLock) {
+                //     // Don't send scrolling messages when scrollLock is false
+                // } else if(message.selectedText && !tabPairs.settings.highlighting) {
+                //     // Don't send highlighting messages when highlighting is false
+                // } else {
+                    chrome.tabs.sendMessage(correspondingTabId, message);
+                // }
+
             } else {
                 console.log("Error relaying message: No corresponding tab to receive messsage");
             }
@@ -215,13 +237,12 @@
         // Listener to redirect to mobile pages
         chrome.webRequest.onBeforeSendHeaders.addListener((details) => {
             const headers = details.requestHeaders;
-            // check if the tabId is a mobile page
+            // Check if the tabId is a mobile page
             const isMobilePage = tabPairs.contains(details.tabId) && !tabPairs.isDesktopTab(details.tabId);
             if (isMobilePage) {
                 for (let i = 0; i < headers.length; i += 1) {
                     if (headers[i].name === 'User-Agent') {
-                        const device = chrome.extension.getBackgroundPage().getDevice();
-                        headers[i].value = device.ua;
+                        headers[i].value = tabPairs.settings.ua;
                         break;
                     }
                 }
@@ -231,5 +252,6 @@
         }, {urls: ["<all_urls>"]}, ['requestHeaders', 'blocking']);
     };
 
+    // The browser action itself
     chrome.browserAction.onClicked.addListener(createMirroredWindow);
 })();

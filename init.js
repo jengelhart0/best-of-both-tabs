@@ -1,60 +1,49 @@
-// put device info on local storage
-var storeDevice = (device) => {
-	let userAgents = chrome.extension.getBackgroundPage().userAgents;
-	if (!userAgents[device]) {
-		console.error('device does not exist');
-	}
-	localStorage['device'] = device;
-	localStorage['ua'] = userAgents[device]['ua'];
-	localStorage['width'] = userAgents[device]['width'];
-	localStorage['height'] = userAgents[device]['height'];
-};
-// "on" or "off"
-var storeScrollLock = (set) => {
-	localStorage['scrollLock'] = set;
-};
+'use strict';
 
-// "new" or "same"
-var storeStartSession = (set) => {
-	localStorage['startSession'] = set
-};
+// Runs when the chrome extension is loaded
+(function() {
 
-// "on" or "off"
-var storeGlueWindows = (set) => {
-	localStorage['glueWindows'] = set;
-};
+	const defaultUserAgents = {
+		'iPhone 5': {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3',
+			width: 320,
+			height: 568
+		},
+		'iPhone 6': {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10B350 Safari/8536.25',
+			width: 375,
+			height: 667
+		},
+		'iPhone 6+': {
+			ua: 'Mozilla/6.0 (iPhone; CPU iPhone OS 10_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/8.0 Mobile/10A5376e Safari/8536.25',
+			width: 414,
+			height: 736
+		},
+		'iPhone 7': {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_0 like Mac OS X) AppleWebKit/602.1.38 (KHTML, like Gecko) Version/10.0 Mobile/14A5297c Safari/602.1',
+			width: 375,
+			height: 667
+		},
+		'iPhone 7+': {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_0 like Mac OS X) AppleWebKit/602.4.6 (KHTML, like Gecko) Version/10.0 Mobile/14D27 Safari/602.1',
+			width: 414,
+			height: 736
+		}
+	};
 
-// get device
-var getDevice = () => {
-	return {
-		'device': localStorage['device'],
-		'ua': localStorage['ua'],
-		'width': parseInt(localStorage['width'], 10),
-		'height': parseInt(localStorage['height'], 10)
-	}
-}
+	// Default device
+	const defaultDeviceName = 'iPhone 7+';
 
-// "on" or "off"
-var getScrollLock = () => {
-	return localStorage['scrollLock'];
-};
+	// Save info for default device, default settings, and store userAgents
+	chrome.storage.local.set({
+		deviceName: defaultDeviceName,
+		ua: defaultUserAgents[defaultDeviceName].ua,
+		width: defaultUserAgents[defaultDeviceName].width,
+		height: defaultUserAgents[defaultDeviceName].height,
+		userAgents: defaultUserAgents,
+		scrollLock: true,
+		newWindow: true,
+		highlighting: false
+	});
 
-// "new" or "same"
-var getStartSession = () => {
-	return localStorage['startSession'];
-};
-
-// "on" or "off"
-var getGlueWindows = () => {
-	return localStorage['glueWindows'];
-};
-
-// runs when chrome extension is loaded
-let init = () => {
-	// defaults
-	storeDevice('iPhone 5');
-	storeScrollLock('on');
-	storeStartSession('same');
-	storeGlueWindows('on');
-};
-init();
+})();
