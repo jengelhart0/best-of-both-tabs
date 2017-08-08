@@ -10,8 +10,12 @@
 	"content_scripts": [
 		{
 			"matches": ["https://*/*"],
-			"js": ["third_party/jquery-3.2.1.js", "page-listener.js"]
+			"js": ["third_party/jquery-3.2.1.js", "third_party/jquery-ui.min.js", "page-listener.js"],
+			"css": ["third_party/jquery-ui.min.css"]
 		}
+	],
+	"web_accessible_resources": [
+		"third_party/images*.png"
 	],
 	"permissions": [
 		"webRequest",

@@ -200,13 +200,13 @@
 
         // Listener to handle messages from content script. For now, used for mirroring window scrolling
         // super important method!
-        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+        chrome.runtime.onMessage.addListener((message, sender) => {
             const correspondingTabId = tabPairs.getCorrespondingTab(sender.tab.id);
 
             // stub out scrolling messages when scrolling is locked
             const scrollLock = chrome.extension.getBackgroundPage().getScrollLock();
             if (!(message.scrollPercentage && scrollLock !== 'on') && correspondingTabId) {
-                chrome.tabs.sendMessage(correspondingTabId, message, null, sendResponse);
+                chrome.tabs.sendMessage(correspondingTabId, message);
             } else {
                 console.log("Error relaying message: No corresponding tab to receive messsage");
             }
