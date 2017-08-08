@@ -3,7 +3,7 @@
 	"name": "Best of Both Tabs",
 	"version": "0.1",
 	"options_page": "options.html",
-	"background": { "scripts": ["constants.js", "init.js", "actions.js"] },
+	"background": { "scripts": ["constants.js", "init.js", "background-main.js"] },
 	"browser_action": {
 		"default_icon": "icon.png"
 	},

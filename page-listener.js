@@ -1,11 +1,17 @@
 'use strict';
 
 (function() {
-    const port = chrome.runtime.connect({name: "main-page-events"});
+    // length of time a match remains highlighted upon scroll focus
+    const highlightDuration = 1000;
+    const leftArrowKey = 37;
+    const rightArrowKey = 39;
 
-    let highlightMatches = $();
-    let scrolledMatchIdx = -1;
-    let lastSelectedText = "";
+    // object to contain results of a highlight action
+    let highlightResults = {
+      matches: $(),
+      currentMatchIdx: -1,
+      lastSelectedText: ""
+    };
 
     // helpers
     function getCurrentScrollPercentage () {
@@ -13,99 +19,97 @@
     }
 
     function clearhighlightMatches() {
-      highlightMatches = $();
-      lastSelectedText = "";
-      scrolledMatchIdx = -1;
+      highlightResults = {
+        matches: $(),
+        currentMatchIdx: -1,
+        lastSelectedText: ""
+      };
     }
 
     function scrollMatchAndHighlight(matchIdx) {
       // restore previous scrolledMatch background color
       // scroll new match into view and highlight after saving background color
-      scrolledMatchIdx = matchIdx;
-      let scrolledMatch = highlightMatches.get(scrolledMatchIdx);
+      highlightResults.currentMatchIdx = matchIdx;
+      let scrolledMatch = highlightResults.matches.get(matchIdx);
       scrolledMatch.scrollIntoView(false);
-      $(scrolledMatch).effect( "highlight", {color:"lightgreen"}, 1000 );
-      // $(scrolledMatch).css('background-color', 'lightgreen');
+      $(scrolledMatch).effect("highlight", {color:"lightgreen"}, highlightDuration);
     }
 
     function scrollThroughHighlightMatches(event) {
-      // if none of highlightMatches text has been scrolled, scroll to first
-      if(scrolledMatchIdx == -1) {
-        scrollMatchAndHighlight(0);
-      }
-      else {
-        switch(event.which) {
-          // left arrow: scroll previous highlightMatches into view
-          case 37:
-            scrollMatchAndHighlight(
-              (scrolledMatchIdx - 1 + highlightMatches.length) % highlightMatches.length);
-            break;
-          // right arrow: scroll next highlightMatches into view
-          case 39:
-            scrollMatchAndHighlight(
-              (scrolledMatchIdx + 1) % highlightMatches.length);
-            break;
-          default:
-        }
+      // switch on right or left arrow key presses
+      const matchesLength = highlightResults.matches.length;
+      switch(event.which) {
+        // scroll previous highlightMatches into view
+        case leftArrowKey:
+          scrollMatchAndHighlight(
+            (highlightResults.currentMatchIdx - 1 + matchesLength) % matchesLength);
+          break;
+        // scroll next highlightMatches into view
+        case rightArrowKey:
+          scrollMatchAndHighlight(
+            (highlightResults.currentMatchIdx + 1) % matchesLength);
+          break;
+        default:
       }
     }
 
     // message senders
+    // send currently selected text to paired tab to find matching results
     function sendSelectedText() {
       const selectedText = window.getSelection().toString();
-      if(lastSelectedText !== selectedText) {
+      if(highlightResults.lastSelectedText !== selectedText) {
         chrome.runtime.sendMessage({"selectedText": selectedText});
-        lastSelectedText = selectedText;
+        highlightResults.lastSelectedText = selectedText;
       }
     }
 
-    // scroll percentage sent to paired tab to synchronize scroll
+    // send scroll percentage to paired tab to synchronize scroll
     function sendScrollPercentage() {
       const scrollPercentage = getCurrentScrollPercentage();
       chrome.runtime.sendMessage(null, {"scrollPercentage": scrollPercentage});
     }
 
     // on-page event listeners
-    window.addEventListener("mouseup", function() {
+    window.addEventListener("mouseup", () => {
       sendSelectedText();
     });
 
-    window.addEventListener("mousedown", function(event) {
-      // only clear highlightMatches on left click
+    window.addEventListener("mousedown", (event) => {
+      // only clear highlightResults on left click
       if(event.which == 1) {
         clearhighlightMatches();
       }
     });
 
-    window.addEventListener("wheel", function() {
+    window.addEventListener("wheel", () => {
       sendScrollPercentage();
     });
 
-    $(document).keydown(function(event) {
-      if (highlightMatches.length) {
+    $(document).keydown((event) => {
+      if (highlightResults.matches.length) {
         scrollThroughHighlightMatches(event);
       }
     });
 
     // message listener that selects acts according to type of message
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    chrome.runtime.onMessage.addListener((message, sender) => {
       // scroll in response to scroll message
       if ("scrollPercentage" in message) {
         const newScroll = message.scrollPercentage * document.body.scrollHeight;
         window.scrollTo(document.documentElement.scrollLeft, newScroll);
       }
+      // search DOM for matches to message.selectedText
       else if ("selectedText" in message) {
         if(message.selectedText.length) {
           clearhighlightMatches();
-          // let toHighlight = $(":contains("+ message.selectedText + ")");
-          highlightMatches = $("*:contains(" + message.selectedText + ")")
+          highlightResults.matches = $("*:contains(" + message.selectedText + ")")
             .filter(function() { return $(this).children().length === 0; })
-          if(highlightMatches.length) {
-            // scroll and highlight first match if results
+
+          // scroll and highlight first match if results
+          if(highlightResults.matches.length) {
             scrollMatchAndHighlight(0);
           }
         }
       }
-      sendResponse();
     });
 })();
