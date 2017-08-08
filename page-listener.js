@@ -1,106 +1,116 @@
 'use strict';
 
-(function() {
-    const port = chrome.runtime.connect({name: "main-page-events"});
+(() => {
+    // length of time a match remains highlighted upon scroll focus
+    const highlightDuration = 1000;
+    const leftArrowKey = 37;
+    const rightArrowKey = 39;
 
-    let highlighted = $();
-    let currentHighlighted = -1;
-    let lastSelectedText = "";
+    // object to contain results of a highlight action
+    let highlightResults = {
+      matches: $(),
+      currentMatchIdx: -1,
+      lastSelectedText: ''
+    };
 
     // helpers
-    function getCurrentScrollPercentage () {
+    let getCurrentScrollPercentage = () => {
       return document.body.scrollTop / document.body.scrollHeight;
     }
 
-    function clearHighlighted() {
-      highlighted.each(function () {
-        let text = $(this).html();
-        $(this).parent().html(text);
-      });
-
-      highlighted = $();
-      lastSelectedText = "";
-      currentHighlighted = -1;
+    let clearhighlightMatches = () => {
+      highlightResults = {
+        matches: $(),
+        currentMatchIdx: -1,
+        lastSelectedText: ''
+      };
     }
 
-    function scrollThroughHighlighted(event) {
-      // if none of highlighted text has been scrolled, scroll to first
-      if(currentHighlighted == -1) {
-        currentHighlighted = 0;
-        highlighted.get(currentHighlighted).scrollIntoView(false);
-      }
-      else {
-        switch(event.which) {
-          // left arrow: scroll previous highlighted into view
-          case 37:
-            currentHighlighted = ((currentHighlighted - 1) + highlighted.length) % highlighted.length;
-            highlighted.get(currentHighlighted).scrollIntoView(false);
-            break;
-          // right arrow: scroll next highlighted into view
-          case 39:
-            currentHighlighted = (currentHighlighted + 1) % highlighted.length;
-            highlighted.get(currentHighlighted).scrollIntoView(false);
-            break;
-          default:
-        }
+    let scrollMatchAndHighlight = (matchIdx) => {
+      // restore previous scrolledMatch background color
+      // scroll new match into view and highlight after saving background color
+      highlightResults.currentMatchIdx = matchIdx;
+      let scrolledMatch = highlightResults.matches.get(matchIdx);
+      scrolledMatch.scrollIntoView(false);
+      $(scrolledMatch).effect('highlight', {color:'lightgreen'}, highlightDuration);
+    }
+
+    let scrollThroughHighlightMatches = (event) => {
+      // switch on right or left arrow key presses
+      const matchesLength = highlightResults.matches.length;
+      switch(event.which) {
+        // scroll previous highlightMatches into view
+        case leftArrowKey:
+          scrollMatchAndHighlight(
+            (highlightResults.currentMatchIdx - 1 + matchesLength) % matchesLength);
+          break;
+        // scroll next highlightMatches into view
+        case rightArrowKey:
+          scrollMatchAndHighlight(
+            (highlightResults.currentMatchIdx + 1) % matchesLength);
+          break;
+        default:
       }
     }
 
     // message senders
-    function sendSelectedText() {
+    // send currently selected text to paired tab to find matching results
+    let sendSelectedText = () => {
       const selectedText = window.getSelection().toString();
-      if(lastSelectedText !== selectedText) {
-        chrome.runtime.sendMessage({"selectedText": selectedText});
-        lastSelectedText = selectedText;
+      if(highlightResults.lastSelectedText !== selectedText) {
+        chrome.runtime.sendMessage({'selectedText': selectedText});
+        highlightResults.lastSelectedText = selectedText;
       }
     }
 
-    // scroll percentage sent to paired tab to synchronize scroll
-    function sendScrollPercentage() {
+    // send scroll percentage to paired tab to synchronize scroll
+    let sendScrollPercentage = () => {
       const scrollPercentage = getCurrentScrollPercentage();
-      chrome.runtime.sendMessage(null, {"scrollPercentage": scrollPercentage});
+      chrome.runtime.sendMessage(null, {'scrollPercentage': scrollPercentage});
     }
 
     // on-page event listeners
-    window.addEventListener("mouseup", function() {
+    window.addEventListener('mouseup', () => {
       sendSelectedText();
     });
 
-    window.addEventListener("mousedown", function(event){
-      // only clear highlighted on left click
+    window.addEventListener('mousedown', (event) => {
+      // only clear highlightResults on left click
       if(event.which == 1) {
-        clearHighlighted();
+        clearhighlightMatches();
       }
     });
 
-    window.addEventListener("wheel", function() {
+    window.addEventListener('wheel', () => {
       sendScrollPercentage();
     });
 
-    $(document).keydown(function(event) {
-      if (highlighted.length) {
-        scrollThroughHighlighted(event);
+    $(document).keydown((event) => {
+      if (highlightResults.matches.length) {
+        scrollThroughHighlightMatches(event);
       }
     });
 
     // message listener that selects acts according to type of message
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    chrome.runtime.onMessage.addListener((message, sender) => {
       // scroll in response to scroll message
-      if (message.scrollPercentage) {
+      if ('scrollPercentage' in message) {
         const newScroll = message.scrollPercentage * document.body.scrollHeight;
         window.scrollTo(document.documentElement.scrollLeft, newScroll);
       }
-      else if (message.selectedText) {
-        clearHighlighted();
-        // let toHighlight = $(":contains("+ message.selectedText + ")");
-        $("*:contains(" + message.selectedText + ")")
-          .filter(function() { return $(this).children().length === 0; })
-          .each(function() {
-            let html = $(this).html();
-            $(this).html("<span class='highlighted' style='background-color: lightgreen'>" + html + "</span>");
-          });
-        highlighted = $(".highlighted");
+      // search DOM for matches to message.selectedText
+      else if ('selectedText' in message) {
+        if(message.selectedText.length) {
+          clearhighlightMatches();
+          // function syntax chosen here to allow correct binding of <this>
+          highlightResults.matches = $('*:contains(' + message.selectedText + ')')
+            .filter(function() { return $(this).children().length === 0; })
+
+          // scroll and highlight first match if results
+          if(highlightResults.matches.length) {
+            scrollMatchAndHighlight(0);
+          }
+        }
       }
-      sendResponse();
     });
 })();
