@@ -221,14 +221,14 @@
             const correspondingTabId = tabPairs.getCorrespondingTab(sender.tab.id);
 
             if (correspondingTabId) {
-                // if (message.scrollPercentage && !tabPairs.settings.scrollLock) {
-                //     // Don't send scrolling messages when scrollLock is false
-                // } else if(message.selectedText && !tabPairs.settings.highlighting) {
-                //     // Don't send highlighting messages when highlighting is false
-                // } else {
-                    chrome.tabs.sendMessage(correspondingTabId, message);
-                // }
-
+                if (message.scrollPercentage && !tabPairs.settings.scrollLock) {
+                    // Don't send scrolling messages when scrollLock is false
+                    message.scrollPercentage = undefined;
+                } else if(message.selectedText && !tabPairs.settings.highlighting) {
+                    // Don't send highlighting messages when highlighting is false
+                    message.selectedText = undefined;
+                }
+                chrome.tabs.sendMessage(correspondingTabId, message);
             } else {
                 console.log("Error relaying message: No corresponding tab to receive messsage");
             }
