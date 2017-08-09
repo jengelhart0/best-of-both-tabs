@@ -8,11 +8,6 @@
         constructor() {
             this._keyedByDesktop = {};
             this._keyedByMobile = {};
-            this.settings = {};
-            // Get current settings
-            chrome.storage.local.get(null, (items) => {
-                Object.assign(this.settings, items);
-            });
         };
 
         /**
@@ -69,18 +64,20 @@
         isDesktopTab(tabId) {
             return !!this._keyedByDesktop[tabId];
         };
-
-        /**
-         * Changes the settings.
-         * @param settings Object representing new settings
-         */
-        updateSettings(settings) {
-            Object.assign(this.settings, settings);
-        }
     }
 
     // The set of mobile-desktop tab pairings
     const tabPairs = new MobileDesktopPairings();
+
+    // Store settings
+    const settings = {};
+    // Get current settings
+    chrome.storage.local.get(null, (items) => {
+        Object.assign(settings, items);
+    });
+
+    // Pattern for ignoring URLs
+    const ignorePattern = /chrome:\/\//;
 
     // ID's of desktop (left) and mobile (right) windows
     let desktopWindowId;
@@ -96,13 +93,15 @@
     chrome.storage.onChanged.addListener((changes, areaName) => {
         const newSettings = {}
         Object.keys(changes).forEach((key) => newSettings[key] = changes[key].newValue);
-        tabPairs.updateSettings(newSettings);
+        Object.assign(settings, newSettings);
     });
 
     // Listeners for tab creation, removal, navigation, and focus change to mirror those events in the other window
     chrome.tabs.onCreated.addListener((newUserTab) => {
         const newTabUrl = newUserTab.url;
-        if (!newTabBeingCreated && newUserTab.windowId === desktopWindowId) {
+        if (newTabUrl && newTablUrl.match(ignorePattern)) {
+            return;
+        } else if (!newTabBeingCreated && newUserTab.windowId === desktopWindowId) {
             // Prevents infinite loop of tab creation
             newTabBeingCreated = true;
             chrome.tabs.create({windowId: mobileWindowId}, (newProgrammaticTab) => {
@@ -179,8 +178,8 @@
         const mobileWindowInfo = {
             top: 0,
             left: screen.width * 2 / 3,
-            width: tabPairs.settings.width !== 0 ? tabPairs.settings.width : screen.width / 2,
-            height: tabPairs.settings.height !== 0 ? tabPairs.settings.height : screen.height,
+            width: settings.width !== 0 ? settings.width : screen.width / 2,
+            height: settings.height !== 0 ? settings.height : screen.height,
             focused: false
         };
 
@@ -205,7 +204,7 @@
     const createMirroredWindow = () => {
         chrome.windows.getCurrent((window) => {
             chrome.tabs.query({active: true, windowId: window.id}, (tabArray) => {
-                if (tabPairs.settings.newWindow) {
+                if (settings.newWindow) {
                     chrome.windows.create({url: tabArray[0].url}, (newWindow) => {
                         mirrorDesktopWindow(newWindow);
                     });
@@ -221,10 +220,10 @@
             const correspondingTabId = tabPairs.getCorrespondingTab(sender.tab.id);
 
             if (correspondingTabId) {
-                if (message.scrollPercentage && !tabPairs.settings.scrollLock) {
+                if (message.scrollPercentage && !settings.scrollLock) {
                     // Don't send scrolling messages when scrollLock is false
                     message.scrollPercentage = undefined;
-                } else if(message.selectedText && !tabPairs.settings.highlighting) {
+                } else if(message.selectedText && !settings.highlighting) {
                     // Don't send highlighting messages when highlighting is false
                     message.selectedText = undefined;
                 }
@@ -242,7 +241,7 @@
             if (isMobilePage) {
                 for (let i = 0; i < headers.length; i += 1) {
                     if (headers[i].name === 'User-Agent') {
-                        headers[i].value = tabPairs.settings.ua;
+                        headers[i].value = settings.ua;
                         break;
                     }
                 }

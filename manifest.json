@@ -11,7 +11,7 @@
 	},
 	"content_scripts": [
 		{
-			"matches": ["https://*/*"],
+			"matches": ["https://*/*", "http://*/*"],
 			"js": ["third_party/jquery-3.2.1.js", "third_party/jquery-ui.min.js", "page-listener.js"],
 			"css": ["third_party/jquery-ui.min.css"]
 		}
