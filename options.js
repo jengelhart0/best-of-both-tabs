@@ -3,54 +3,82 @@
 // build the options in the device select
 let buildDeviceOptions = () => {
 	let deviceSelect = document.getElementById("device-select");
-	let userAgents = chrome.extension.getBackgroundPage().userAgents;
-	Object.keys(userAgents).forEach((key) => {
-		deviceSelect.add(new Option(key, key));
-	})
+	chrome.storage.local.get('userAgents', (items) => {
+		Object.keys(items.userAgents).forEach((key) => {
+			deviceSelect.add(new Option(key, key));
+		})
+	});
 };
 
-// change the current device
+// Change the current device
 let changeDevice = (event) => {
-	if (event.target.value) {
-		let storeDevice = chrome.extension.getBackgroundPage().storeDevice;
-		storeDevice(event.target.value)
+	const deviceName = event.target.value;
+	if (deviceName) {
+		chrome.storage.local.get('userAgents', (items) => {
+			chrome.storage.local.set({
+				deviceName: deviceName,
+				ua: items.userAgents[deviceName].ua,
+				width: items.userAgents[deviceName].width,
+				height: items.userAgents[deviceName].height
+			});
+		});
 	}
 }
 
 // Add a new device
 let addDevice = (event) => {
 	let deviceName = document.getElementById("name-input").value;
-	let userAgent = document.getElementById("user-agent-input").value;
+	let ua = document.getElementById("user-agent-input").value;
 	let width = document.getElementById("width-input").value;
 	let height = document.getElementById("height-input").value;
 
-	let userAgents = chrome.extension.getBackgroundPage().userAgents;
-	userAgents[deviceName] = {
-		ua: userAgent,
-		width: width,
-		height: height
-	};
-	// rebuild options and change device to new one
+	if (deviceName && ua && width && height) {
+		chrome.storage.local.get('userAgents', (items) => {
+			items.userAgents[deviceName] = {
+				ua: ua,
+				width: width,
+				height: height
+			};
+			chrome.storage.local.set({
+				userAgents: items.userAgents
+			});
+		});
+	}
+
+	// Rebuild options and change device to new one
 	buildDeviceOptions(); 
 	changeDevice(deviceName);
 }
 
 let addScrollLockListeners = () => {
-	var radios = document.forms.settings.scroll;
-    for(var i = 0; i < radios.length; i++) {
+	let radios = document.forms.settings.scroll;
+    for(let i = 0; i < radios.length; i++) {
         radios[i].onclick = function () {
-           	let storeScrollLock = chrome.extension.getBackgroundPage().storeScrollLock;
-           	storeScrollLock(this.value);
+        	chrome.storage.local.set({
+        		scrollLock: (this.value === "on" ? true : false),
+        	})
         };
     }
 }
 
 let addStartSessionListeners = () => {
-	var radios = document.forms.settings.session;
-    for(var i = 0; i < radios.length; i++) {
+	let radios = document.forms.settings.session;
+    for(let i = 0; i < radios.length; i++) {
         radios[i].onclick = function () {
-           	let storeStartSession = chrome.extension.getBackgroundPage().storeStartSession;
-           	storeStartSession(this.value);
+           	chrome.storage.local.set({
+        		newWindow: (this.value === "new" ? true : false),
+        	})
+        };
+    }
+}
+
+let addTextHighlightingListeners = () => {
+	let radios = document.forms.settings.highlighting;
+    for(let i = 0; i < radios.length; i++) {
+        radios[i].onclick = function () {
+           	chrome.storage.local.set({
+        		highlighting: (this.value === "on" ? true : false),
+        	})
         };
     }
 }
@@ -63,41 +91,42 @@ let addListeners = () => {
 
 	addScrollLockListeners();
 	addStartSessionListeners();
+	addTextHighlightingListeners();
 }
 
 
-let getDefaults = () => {
-	let device = chrome.extension.getBackgroundPage().getDevice().device;
-	let sel = document.getElementById("device-select");
-	var opts = sel.options;
-	for (var opt, i = 0; opt = opts[i]; i++) {
-		if (opt.value == device) {
-			sel.selectedIndex = i;
-			break;
+let getSettings = () => {
+	chrome.storage.local.get(null, (items) => {
+		let sel = document.getElementById("device-select");
+		let opts = sel.options;
+		for (let opt, i = 0; opt = opts[i]; i++) {
+			if (opt.value === items.deviceName) {
+				sel.selectedIndex = i;
+				break;
+			}
 		}
-	}	
-
-	let scrollLock = chrome.extension.getBackgroundPage().getScrollLock();
-	if (scrollLock === "on")
-	{
-		document.getElementById("scroll-lock-on").checked = true;
-	} else {
-		document.getElementById("scroll-lock-off").checked = true;
-	}
-
-	let session = chrome.extension.getBackgroundPage().getStartSession();
-	if (session === "same")
-	{
-		document.getElementById("session-same").checked = true;
-	} else {
-		document.getElementById("session-new").checked = true;
-	}
+		if (items.scrollLock) {
+			document.getElementById("scroll-lock-on").checked = true;
+		} else {
+			document.getElementById("scroll-lock-off").checked = true;
+		}
+		if (items.newWindow) {
+			document.getElementById("session-new").checked = true;
+		} else {
+			document.getElementById("session-same").checked = true;
+		}
+		if (items.highlighting) {
+			document.getElementById("highlighting-on").checked = true;
+		} else {
+			document.getElementById("highlighting-off").checked = true;
+		}
+	})
 }
 
-// run on page load
+// Run on page load
 let init = () => {
 	addListeners();
 	buildDeviceOptions();
-	getDefaults();
+	getSettings();
 }
 init();
