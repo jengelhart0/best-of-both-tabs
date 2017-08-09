@@ -79,6 +79,9 @@
     // Pattern for ignoring URLs
     const ignorePattern = /chrome:\/\//;
 
+    // Pattern for new tab
+    const newTabPattern = /chrome:\/\/newtab/;
+
     // ID's of desktop (left) and mobile (right) windows
     let desktopWindowId;
     let mobileWindowId;
@@ -99,8 +102,8 @@
     // Listeners for tab creation, removal, navigation, and focus change to mirror those events in the other window
     chrome.tabs.onCreated.addListener((newUserTab) => {
         const newTabUrl = newUserTab.url;
-        if (newTabUrl && newTablUrl.match(ignorePattern)) {
-            return;
+        if (newTabUrl && newTabUrl.match(ignorePattern) && !newTabUrl.match(newTabPattern)) {
+            return; // Ignore opening a new tab if it's a chrome settings tab
         } else if (!newTabBeingCreated && newUserTab.windowId === desktopWindowId) {
             // Prevents infinite loop of tab creation
             newTabBeingCreated = true;
