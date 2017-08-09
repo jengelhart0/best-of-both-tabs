@@ -220,10 +220,10 @@
             const correspondingTabId = tabPairs.getCorrespondingTab(sender.tab.id);
 
             if (correspondingTabId) {
-                if (message.scrollPercentage && !settings.scrollLock) {
+                if (!settings.scrollLock) {
                     // Don't send scrolling messages when scrollLock is false
                     message.scrollPercentage = undefined;
-                } else if(message.selectedText && !settings.highlighting) {
+                } else if(!settings.highlighting) {
                     // Don't send highlighting messages when highlighting is false
                     message.selectedText = undefined;
                 }

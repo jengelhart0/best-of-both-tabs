@@ -16,7 +16,7 @@
     // Helpers
     let getCurrentScrollPercentage = () => {
         return document.body.scrollTop / document.body.scrollHeight;
-    }
+    };
 
     let clearhighlightMatches = () => {
         highlightResults = {
@@ -24,7 +24,7 @@
             currentMatchIdx: -1,
             lastSelectedText: ''
         };
-    }
+    };
 
     let scrollMatchAndHighlight = (matchIdx) => {
         // Restore previous scrolledMatch background color
@@ -33,7 +33,7 @@
         let scrolledMatch = highlightResults.matches.get(matchIdx);
         scrolledMatch.scrollIntoView(false);
         $(scrolledMatch).effect('highlight', {color:'lightgreen'}, highlightDuration);
-    }
+    };
 
     let scrollThroughHighlightMatches = (event) => {
         // Switch on right or left arrow key presses
@@ -51,7 +51,7 @@
                 break;
             default:
         }
-    }
+    };
 
     // Message senders
     // Send currently selected text to paired tab to find matching results
@@ -61,13 +61,13 @@
             chrome.runtime.sendMessage({'selectedText': selectedText});
             highlightResults.lastSelectedText = selectedText;
         }
-    }
+    };
 
     // Send scroll percentage to paired tab to synchronize scroll
     let sendScrollPercentage = () => {
         const scrollPercentage = getCurrentScrollPercentage();
-        chrome.runtime.sendMessage(null, {'scrollPercentage': scrollPercentage});
-    }
+        chrome.runtime.sendMessage({'scrollPercentage': scrollPercentage});
+    };
 
     // On-page event listeners
     window.addEventListener('mouseup', () => {

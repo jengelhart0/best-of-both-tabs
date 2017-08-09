@@ -42,7 +42,7 @@
 		height: defaultUserAgents[defaultDeviceName].height,
 		userAgents: defaultUserAgents,
 		scrollLock: true,
-		newWindow: true,
+		newWindow: false,
 		highlighting: false
 	});
 

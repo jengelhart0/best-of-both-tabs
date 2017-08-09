@@ -51,8 +51,8 @@ let addDevice = (event) => {
 }
 
 let addScrollLockListeners = () => {
-	var radios = document.forms.settings.scroll;
-    for(var i = 0; i < radios.length; i++) {
+	let radios = document.forms.settings.scroll;
+    for(let i = 0; i < radios.length; i++) {
         radios[i].onclick = function () {
         	chrome.storage.local.set({
         		scrollLock: (this.value === "on" ? true : false),
@@ -62,8 +62,8 @@ let addScrollLockListeners = () => {
 }
 
 let addStartSessionListeners = () => {
-	var radios = document.forms.settings.session;
-    for(var i = 0; i < radios.length; i++) {
+	let radios = document.forms.settings.session;
+    for(let i = 0; i < radios.length; i++) {
         radios[i].onclick = function () {
            	chrome.storage.local.set({
         		newWindow: (this.value === "new" ? true : false),
@@ -73,8 +73,8 @@ let addStartSessionListeners = () => {
 }
 
 let addTextHighlightingListeners = () => {
-	var radios = document.forms.settings.highlighting;
-    for(var i = 0; i < radios.length; i++) {
+	let radios = document.forms.settings.highlighting;
+    for(let i = 0; i < radios.length; i++) {
         radios[i].onclick = function () {
            	chrome.storage.local.set({
         		highlighting: (this.value === "on" ? true : false),
@@ -98,8 +98,8 @@ let addListeners = () => {
 let getSettings = () => {
 	chrome.storage.local.get(null, (items) => {
 		let sel = document.getElementById("device-select");
-		var opts = sel.options;
-		for (var opt, i = 0; opt = opts[i]; i++) {
+		let opts = sel.options;
+		for (let opt, i = 0; opt = opts[i]; i++) {
 			if (opt.value === items.deviceName) {
 				sel.selectedIndex = i;
 				break;
