@@ -8,7 +8,7 @@ Best of Both Tabs is a chrome extension that provides you with a side-by-side vi
 2. Go to chrome://extensions
 3. Check the box "Developer mode" on the upper right.
 4. Click the button "Load unpacked extension..." and select the best-of-both-tabs folder.
-5. You will see our icon to the right of the search bar.
+5. You will see our icon to the right of the search bar. ![icon](icon.png?raw=true "Title")
 
 ### Getting Started
 
