@@ -2,23 +2,35 @@
 	"manifest_version": 2,
 	"name": "Best of Both Tabs",
 	"version": "0.1",
+	"minimum_chrome_version": "45.0",
 	"options_ui": {
-		"page": "options.html"
+		"page": "html/options.html"
 	},
-	"background": { "scripts": ["init.js", "background-main.js"] },
+	"background": {
+		"scripts": ["js/init.js", "js/background-main.js"]
+	},
 	"browser_action": {
-		"default_icon": "icon128.png"
+		"default_icon": "img/icon128.png"
 	},
 	"icons": { 
-		"16": "icon16.png",
-        "48": "icon48.png",
-        "128": "icon128.png"
+		"16": "img/icon16.png",
+        "48": "img/icon48.png",
+        "128": "img/icon128.png"
      },
 	"content_scripts": [
 		{
-			"matches": ["https://*/*", "http://*/*"],
-			"js": ["third_party/jquery-3.2.1.js", "third_party/jquery-ui.min.js", "page-listener.js"],
-			"css": ["third_party/jquery-ui.min.css"]
+			"matches": [
+				"https://*/*", 
+				"http://*/*"
+			],
+			"js": [
+				"third_party/jquery-3.2.1.js",
+				"third_party/jquery-ui.min.js",
+				"js/page-listener.js"
+			],
+			"css": [
+				"third_party/jquery-ui.min.css"
+			]
 		}
 	],
 	"web_accessible_resources": [

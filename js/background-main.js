@@ -183,7 +183,8 @@
             left: screen.width * 2 / 3,
             width: settings.width !== 0 ? settings.width : screen.width / 2,
             height: settings.height !== 0 ? settings.height : screen.height,
-            focused: false
+            focused: false,
+            type: "popup" // Allows for opening windows smaller than 400px
         };
 
         // Resize desktop window
