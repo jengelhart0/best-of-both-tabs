@@ -222,10 +222,10 @@
             if (correspondingTabId) {
                 if (!settings.scrollLock) {
                     // Don't send scrolling messages when scrollLock is false
-                    message.scrollPercentage = undefined;
+                    delete message.scrollPercentage;
                 } else if(!settings.highlighting) {
                     // Don't send highlighting messages when highlighting is false
-                    message.selectedText = undefined;
+                    delete message.selectedText;
                 }
                 chrome.tabs.sendMessage(correspondingTabId, message);
             } else {

@@ -26,7 +26,8 @@
         };
     };
 
-    let scrollMatchAndHighlight = (matchIdx) => {
+    // Function syntax used here to prevent a double-highlighting bug
+    function scrollMatchAndHighlight(matchIdx) {
         // Restore previous scrolledMatch background color
         // Scroll new match into view and highlight after saving background color
         highlightResults.currentMatchIdx = matchIdx;
