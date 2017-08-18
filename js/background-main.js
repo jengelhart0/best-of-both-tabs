@@ -107,7 +107,7 @@
         } else if (!newTabBeingCreated && newUserTab.windowId === desktopWindowId) {
             // Prevents infinite loop of tab creation
             newTabBeingCreated = true;
-            chrome.tabs.create({windowId: mobileWindowId}, (newProgrammaticTab) => {
+            chrome.tabs.create({windowId: mobileWindowId, active: newUserTab.active}, (newProgrammaticTab) => {
                 chrome.tabs.update(newProgrammaticTab.id, {url: newTabUrl}, (updatedProgrammaticTab) => {
                     // New tab is in desktop window, programmatic is mobile
                     tabPairs.addPair(newUserTab.id, newProgrammaticTab.id);
@@ -116,9 +116,9 @@
             });
         } else if (!newTabBeingCreated && newUserTab.windowId === mobileWindowId) {
             newTabBeingCreated = true;
-            chrome.tabs.create({windowId: desktopWindowId}, (newProgrammaticTab) => {
-                // New tab is in mobile window, programmatic is desktop
+            chrome.tabs.create({windowId: desktopWindowId, active: newUserTab.active}, (newProgrammaticTab) => {
                 chrome.tabs.update(newProgrammaticTab.id, {url: newTabUrl}, (updatedProgrammaticTab) => {
+                    // New tab is in mobile window, programmatic is desktop
                     tabPairs.addPair(newProgrammaticTab.id, newUserTab.id);
                     newTabBeingCreated = false;
                 });
