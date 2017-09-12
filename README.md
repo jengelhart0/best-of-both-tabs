@@ -1,6 +1,6 @@
-# Best of Both Tabs
+# Web QA Extension
 
-Best of Both Tabs is a chrome extension that provides you with a side-by-side view of the desktop and mobile web version of a website.
+Web QA Extension is a Chrome extension that provides you with a side-by-side view of the desktop and mobile web version of a website.
 
 ### Installation
 
@@ -24,12 +24,12 @@ Tabs are also mirrored between the windows. Open a new tab, and the mirrored win
 
 To access the options, right click our icon and hit "options".
 
-- Device: Best of Both Tabs comes with a few preset devices. You can add your own device by specifying a device name, user agent, width, and height. You can find the user agent for any device by searching for it. A user agent will look something like this: <pre>Mozilla/5.0 (iPhone; CPU iPhone OS 10_2_1 like Mac OS X) AppleWebKit/602.4.6 (KHTML, like Gecko) Version/10.0 Mobile/14D27 Safari/602.1</pre>
+- Device: Web QA Extension comes with a few preset devices. You can add your own device by specifying a device name, user agent, width, and height. You can find the user agent for any device by searching for it. A user agent will look something like this: <pre>Mozilla/5.0 (iPhone; CPU iPhone OS 10_2_1 like Mac OS X) AppleWebKit/602.4.6 (KHTML, like Gecko) Version/10.0 Mobile/14D27 Safari/602.1</pre>
 - Scroll lock:
     - When scroll lock is on, scrolling will be mirrored between tabs. You can still move up and down a page without it being mirrored by using the up and down arrows or spacebar.
 - Start session in:
     - When "same window" is selected, your session will begin with the current URL in the same desktop window, and a new mobile window.
-    - When "new window" is selected,  your Best of Both Tabs session will begin with the current URL in a new desktop window and a new mobile window. 
+    - When "new window" is selected,  your Web QA Extension session will begin with the current URL in a new desktop window and a new mobile window. 
 - Text Highlighting (Beta):
     - When text highlighting is on, highlighting text in a tab will highlight the same text, if present, in the mirrored tab. If there are multiple matches in the mirrored tab, you can scroll through the matches by hitting the left and right arrow. Un-highlight text in the original window to remove the highlighting.
 

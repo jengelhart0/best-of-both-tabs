@@ -1,6 +1,6 @@
 {
 	"manifest_version": 2,
-	"name": "Best of Both Tabs",
+	"name": "Web QA Extension",
 	"version": "0.1",
 	"minimum_chrome_version": "45.0",
 	"options_ui": {

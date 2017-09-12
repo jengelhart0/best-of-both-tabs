@@ -102,6 +102,7 @@
     // Listeners for tab creation, removal, navigation, and focus change to mirror those events in the other window
     chrome.tabs.onCreated.addListener((newUserTab) => {
         const newTabUrl = newUserTab.url;
+        console.log("new tab url ", newTabUrl);
         if (newTabUrl && newTabUrl.match(ignorePattern) && !newTabUrl.match(newTabPattern)) {
             return; // Ignore opening a new tab if it's a chrome settings tab
         } else if (!newTabBeingCreated && newUserTab.windowId === desktopWindowId) {
@@ -174,15 +175,15 @@
         const desktopWindowInfo = {
             top: 0,
             left: 0,
-            width: screen.width * 2 / 3,
-            height: screen.height
+            width: Math.round(screen.width * 2 / 3),
+            height: Math.round(screen.height)
         };
 
         const mobileWindowInfo = {
             top: 0,
-            left: screen.width * 2 / 3,
-            width: settings.width !== 0 ? settings.width : screen.width / 2,
-            height: settings.height !== 0 ? settings.height : screen.height,
+            left: Math.round(screen.width * 2 / 3),
+            width: Math.round(settings.width) !== 0 ? Math.round(settings.width) : Math.round(screen.width / 2),
+            height: Math.round(settings.height) !== 0 ? Math.round(settings.height) : Math.round(screen.height),
             focused: false
         };
 

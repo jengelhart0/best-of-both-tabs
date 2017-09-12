@@ -91,7 +91,8 @@ let addListeners = () => {
 
 	addScrollLockListeners();
 	addStartSessionListeners();
-	addTextHighlightingListeners();
+	// Commented out for now Issue #2. Add functionality back through Issue #3
+	//addTextHighlightingListeners();
 }
 
 
@@ -115,11 +116,12 @@ let getSettings = () => {
 		} else {
 			document.getElementById("session-same").checked = true;
 		}
-		if (items.highlighting) {
+		// Commented out for now Issue #2. Add functionality back through Issue #3
+		/*if (items.highlighting) {
 			document.getElementById("highlighting-on").checked = true;
 		} else {
 			document.getElementById("highlighting-off").checked = true;
-		}
+		}*/
 	})
 }
 
