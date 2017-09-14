@@ -30,8 +30,8 @@ To access the options, right click our icon and hit "options".
 - Start session in:
     - When "same window" is selected, your session will begin with the current URL in the same desktop window, and a new mobile window.
     - When "new window" is selected,  your Web QA Extension session will begin with the current URL in a new desktop window and a new mobile window. 
-- Text Highlighting (Beta):
-    - When text highlighting is on, highlighting text in a tab will highlight the same text, if present, in the mirrored tab. If there are multiple matches in the mirrored tab, you can scroll through the matches by hitting the left and right arrow. Un-highlight text in the original window to remove the highlighting.
+<!-- Text Highlighting (Beta):
+    - When text highlighting is on, highlighting text in a tab will highlight the same text, if present, in the mirrored tab. If there are multiple matches in the mirrored tab, you can scroll through the matches by hitting the left and right arrow. Un-highlight text in the original window to remove the highlighting.-->
 
 ### License
 
